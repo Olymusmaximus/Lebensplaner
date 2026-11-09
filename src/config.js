@@ -6,12 +6,12 @@
 // ============================================================
 
 export const firebaseConfig = {
-  apiKey: "HIER_EINTRAGEN",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: ""
+  apiKey: "AIzaSyAa7EKtMFNmrbAOzwmWMiYZVntElmbgl1E",
+  authDomain: "lebensplaner-e7236.firebaseapp.com",
+  projectId: "lebensplaner-e7236",
+  storageBucket: "lebensplaner-e7236.firebasestorage.app",
+  messagingSenderId: "273105962435",
+  appId: "1:273105962435:web:d7a3e964e48eac5996e976"
 };
 
 // Adresse der PC-Version (GitHub Pages), z. B. "https://BENUTZERNAME.github.io/lebensplaner/"
