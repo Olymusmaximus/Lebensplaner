@@ -98,6 +98,8 @@ jobs:
           else
             cp android/app/build/outputs/apk/debug/*.apk out/Arise.apk
           fi
+          # gleiche Datei auch unter dem alten Namen, damit alte Links (…/Lebensplaner.apk) weiter funktionieren
+          cp out/Arise.apk out/Lebensplaner.apk
           ls -la out
 
       - name: Als Build-Ergebnis speichern
@@ -114,7 +116,7 @@ jobs:
           if [ "${{ steps.key.outputs.signed }}" = "true" ]; then
             NOTES="Signierte Version. Arise.apk zum Installieren auf dem Handy, Arise-PlayStore.aab für den Google Play Store."
           else
-            NOTES="Test-Version (noch ohne eigenen Upload-Schlüssel)."
+            NOTES="Test-Version (noch ohne eigenen Upload-Schlüssel). Arise.apk installieren – Lebensplaner.apk ist dieselbe Datei für alte Links."
           fi
           gh release create "$TAG" out/* --title "Arise $TAG" --notes "$NOTES" --latest
 
