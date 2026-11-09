@@ -5,9 +5,9 @@ Läuft als **Android-App** und als **Web-Version am PC**. Beide synchronisieren 
 
 | | Link |
 |---|---|
-| 📱 Android-App (APK) | [Lebensplaner.apk herunterladen](https://github.com/Olymusmaximus/lebensplaner/releases/latest/download/Lebensplaner.apk) |
-| 💻 PC-Version | https://olymusmaximus.github.io/lebensplaner/ |
-| 🛒 Play-Store-Datei | `Lebensplaner-PlayStore.aab` unter [Releases](https://github.com/Olymusmaximus/lebensplaner/releases/latest) |
+| 📱 Android-App (APK) | [Lebensplaner.apk herunterladen](https://github.com/Olymusmaximus/Lebensplaner/releases/latest/download/Lebensplaner.apk) |
+| 💻 PC-Version | https://olymusmaximus.github.io/Lebensplaner/ |
+| 🛒 Play-Store-Datei | `Lebensplaner-PlayStore.aab` unter [Releases](https://github.com/Olymusmaximus/Lebensplaner/releases/latest) |
 
 ## So funktioniert's
 
