@@ -84,7 +84,10 @@ jobs:
       - name: App bauen (Test-Version)
         if: steps.key.outputs.signed != 'true'
         working-directory: android
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
+        run: |
+          # fester Test-Schlüssel, damit sich Test-Versionen ohne Deinstallieren aktualisieren lassen
+          mkdir -p ~/.android && cp ../keys/test-debug.keystore ~/.android/debug.keystore
+          ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: Dateien einsammeln
         run: |
