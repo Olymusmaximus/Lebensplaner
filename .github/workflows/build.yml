@@ -90,17 +90,17 @@ jobs:
         run: |
           mkdir -p out
           if [ "${{ steps.key.outputs.signed }}" = "true" ]; then
-            cp android/app/build/outputs/apk/release/*.apk out/Lebensplaner.apk
-            cp android/app/build/outputs/bundle/release/*.aab out/Lebensplaner-PlayStore.aab
+            cp android/app/build/outputs/apk/release/*.apk out/Arise.apk
+            cp android/app/build/outputs/bundle/release/*.aab out/Arise-PlayStore.aab
           else
-            cp android/app/build/outputs/apk/debug/*.apk out/Lebensplaner.apk
+            cp android/app/build/outputs/apk/debug/*.apk out/Arise.apk
           fi
           ls -la out
 
       - name: Als Build-Ergebnis speichern
         uses: actions/upload-artifact@v4
         with:
-          name: Lebensplaner-App
+          name: Arise-App
           path: out/
 
       - name: Download-Seite (Release) aktualisieren
@@ -109,11 +109,11 @@ jobs:
         run: |
           TAG="v1.0.${{ github.run_number }}"
           if [ "${{ steps.key.outputs.signed }}" = "true" ]; then
-            NOTES="Signierte Version. Lebensplaner.apk zum Installieren auf dem Handy, Lebensplaner-PlayStore.aab für den Google Play Store."
+            NOTES="Signierte Version. Arise.apk zum Installieren auf dem Handy, Arise-PlayStore.aab für den Google Play Store."
           else
             NOTES="Test-Version (noch ohne eigenen Upload-Schlüssel)."
           fi
-          gh release create "$TAG" out/* --title "Lebensplaner $TAG" --notes "$NOTES" --latest
+          gh release create "$TAG" out/* --title "Arise $TAG" --notes "$NOTES" --latest
 
       - name: PC-Version auf GitHub Pages veröffentlichen
         id: deploy

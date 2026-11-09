@@ -76,12 +76,16 @@ const QHAB = {
   '☀️': svg('<circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/>'),
   '💖': svg('<path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7a4.3 4.3 0 0 1 7.5 2.8C19.5 15.4 12 20 12 20z"/>')
 };
+/* ARISE-Emblem (eigene Vektorgrafik nach Max' Logo) */
+const LOGO_SRC = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="9 5 82 88"><defs><linearGradient id="PFXc" x1=".1" y1="0" x2=".5" y2="1"><stop offset="0" stop-color="#ff9cff"/><stop offset=".35" stop-color="#d84cff"/><stop offset="1" stop-color="#5a16c4"/></linearGradient><linearGradient id="PFXl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a2ce0"/><stop offset="1" stop-color="#1a0c70"/></linearGradient><linearGradient id="PFXb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a3eff"/><stop offset="1" stop-color="#1612a0"/></linearGradient></defs><path d="M29.8,60.6 L24.4,63.2 L50,89.6 L50,80.4 Z" fill="url(#PFXb)"/><path d="M70.2,60.6 L75.6,63.2 L50,89.6 L50,80.4 Z" fill="url(#PFXb)"/><path d="M14.2,44.2 L16.6,52.2 L29.4,59 L29.8,60.8 L24.4,63.2 L14.8,54 Z" fill="url(#PFXb)" opacity=".8"/><path d="M85.8,44.2 L83.4,52.2 L70.6,59 L70.2,60.8 L75.6,63.2 L85.2,54 Z" fill="url(#PFXb)" opacity=".8"/><path d="M50,8.6 L45.4,22 L44.6,28.6 L37.4,50 L50,69 Z" fill="url(#PFXl)"/><path d="M50,8.6 L54.6,22 L55.4,28.6 L62.6,50 L50,63 Z" fill="url(#PFXc)"/><g stroke="#efe7ff" stroke-width="2.6" fill="none" stroke-linejoin="round" stroke-linecap="round"><path d="M50,8 L45.6,22 L33.2,38.2 L34.6,40.8 L35.2,37 L44.6,28.6 L37,50 L50,70 L63,50 L55.4,28.6 L64.8,37 L65.4,40.8 L66.8,38.2 L54.4,22 L50,8 Z"/><path d="M49.8,20 L42.6,46.6 L49.8,62.4"/><path d="M49.8,20 L49.8,62.4"/><path d="M29.8,60.8 L14.8,54 L14.2,44.2 L16.6,52.2 L29.4,59"/><path d="M70.2,60.8 L85.2,54 L85.8,44.2 L83.4,52.2 L70.6,59"/><path d="M29.8,60.6 L26,49.6 L33.6,44 L30,50 L50,80.4 L70,50 L66.4,44 L74,49.6 L70.2,60.6"/><path d="M24.4,63.2 L50,89.6 L75.6,63.2"/></g></svg>`;
+const LOGO = (p = 'h') => LOGO_SRC.replace(/PFX/g, 'lg' + p);
+const TAGLINE = 'Your life. Your level. Your system.';
 const EMO = {heute:'🌤️',kalender:'📅',schichten:'🕒',aufgaben:'✏️',gewohnheiten:'🌱',finanzen:'💶',notizen:'💌'};
 const HABIT_EMOJIS = ['🌱','💧','📖','🧘','🏃','🥗','😴','💊','🌿','✍️','🎧','🧹','💸','☀️','💖'];
 const QUOTES = ['Kleine Schritte sind auch Schritte.','Du schaffst das – einen Tag nach dem anderen.','Heute ist ein guter Tag für einen guten Tag.','Sei lieb zu dir selbst.','Fortschritt, nicht Perfektion.','Atme durch. Du hast Zeit.','Mach heute etwas, worüber dein zukünftiges Ich sich freut.','Ruhe ist auch produktiv.','Glaub an dich, so wie deine beste Freundin an dich glaubt.','Jeder Haken zählt.'];
 const MOTTOS = ['Jeder Tag ist ein neues Level.','Kleine Siege summieren sich.','Disziplin schlägt Motivation.','Heute trainieren, morgen stärker.','Fokus. Eine Quest nach der anderen.','Dein zukünftiges Ich zählt auf dich.','Fortschritt ist eine Entscheidung.','Auch Pausen laden Energie auf.','Wer dranbleibt, levelt auf.','Mach den ersten Schritt – der Rest folgt.'];
 const BGS = [['traum','Traum ✨'],['wolken','Wolken ☁️'],['blumen','Blümchen 🌼'],['karo','Vichy-Karo 🎀'],['herzen','Herzen 💗'],['salbei','Salbei 🌿'],['punkte','Punktpapier 📓']];
-const ACCS = [['gold','Gold','#f2b544'],['smaragd','Smaragd','#3fe0a0'],['rubin','Rubin','#ff4d6d']];
+const ACCS = [['violett','Violett','#b48cff'],['gold','Gold','#f2b544'],['smaragd','Smaragd','#3fe0a0'],['rubin','Rubin','#ff4d6d']];
 const TABS = ['heute','kalender','schichten','aufgaben','gewohnheiten','finanzen','notizen'];
 
 const TXT = {
@@ -115,7 +119,7 @@ let items = new Map();
 let backend = 'none';          // 'none' (lädt) | 'auth' (Anmeldeseite) | 'local' | 'cloud'
 let fb = { app: null, auth: null, db: null, user: null, unsub: null };
 let ui = { tab: 'heute', calMonth: null, sel: today(), taskFilter: 'offen', calView: 'month' };
-let theme = 'quest', accent = 'gold', currentBg = 'traum';
+let theme = 'quest', accent = 'violett', currentBg = 'traum';
 try {
   const t = localStorage.getItem('lebensplaner.tab'); if (t && TABS.includes(t)) ui.tab = t;
   const th = localStorage.getItem('lebensplaner.theme'); if (th === 'quest' || th === 'pastel') theme = th;
@@ -213,12 +217,12 @@ function applyTheme(){
   appliedKey = key;
   const q = Q();
   document.body.className = `th-${theme} acc-${accent}`;
-  document.documentElement.style.background = q ? '#0a0806' : '#fbf6f1';
+  document.documentElement.style.background = q ? '#07050d' : '#fbf6f1';
   const el = $('#bg'), bgc = q ? 'bg-quest' : 'bg-' + currentBg;
   if (el.className !== bgc) { el.className = bgc; el.innerHTML = q ? embers() : ''; }
-  $('#brand').innerHTML = q ? `<span class="qlogo">${QI.logo}</span><b class="bt">Lebens<i>planer</i></b>` : '🌷 Mein <span>Lebensplaner</span>';
+  $('#brand').innerHTML = q ? `<span class="qlogo">${LOGO('h')}</span><b class="bt no-tr">ARISE</b>` : '🌷 <span class="no-tr">Arise</span>';
   $('#btnAcc').innerHTML = q ? QI.user : '👤';
-  const tc = document.querySelector('meta[name=theme-color]'); if (tc) tc.setAttribute('content', q ? '#0a0806' : '#fbf6f1');
+  const tc = document.querySelector('meta[name=theme-color]'); if (tc) tc.setAttribute('content', q ? '#07050d' : '#fbf6f1');
   if (IS_NATIVE) { try { const SB = CapCore.SystemBars; if (SB && SB.setStyle) Promise.resolve(SB.setStyle({ style: q ? 'DARK' : 'LIGHT' })).catch(()=>{}); } catch(e) {} }
   $('#btnDesign').innerHTML = q ? QI.design : '🎨';
   try { localStorage.setItem('lebensplaner.theme', theme); localStorage.setItem('lebensplaner.accent', accent); localStorage.setItem('lebensplaner.bg', currentBg); } catch(e) {}
@@ -231,7 +235,7 @@ function designPicker(){
     <button type="button" data-lp-theme="quest" class="${q?'on':''}"><span class="pv pv-quest"></span><span class="lb">Quest-Modus ⚔️</span></button>
     <button type="button" data-lp-theme="pastel" class="${!q?'on':''}"><span class="pv bg-traum"></span><span class="lb">Pastell 🌸</span></button>
   </div>
-  ${q ? `<label>Leuchtfarbe</label><div class="bgpick">${ACCS.map(([k,l,c]) => `<button type="button" data-lp-acc="${k}" class="${accent===k?'on':''}"><span class="pv" style="background:radial-gradient(ellipse at 50% 120%,${c},#0b0907 72%)"></span><span class="lb">${l}</span></button>`).join('')}</div>`
+  ${q ? `<label>Leuchtfarbe</label><div class="bgpick">${ACCS.map(([k,l,c]) => `<button type="button" data-lp-acc="${k}" class="${accent===k?'on':''}"><span class="pv" style="background:radial-gradient(ellipse at 50% 120%,${c},#07050d 72%)"></span><span class="lb">${l}</span></button>`).join('')}</div>`
       : `<label>Hintergrund</label><div class="bgpick">${BGS.map(([k,l]) => `<button type="button" data-lp-bg="${k}" class="${currentBg===k?'on':''}"><span class="pv bg-${k} ${k==='wolken'?'mini':''}"></span><span class="lb">${l}</span></button>`).join('')}</div>`}
   ${langPicker()}
   <div class="actions"><span></span><button type="button" class="btn primary" data-close>Fertig</button></div>`;
@@ -259,8 +263,9 @@ function viewAuth(){
   const q = Q();
   const title = authMode === 'register' ? 'Konto erstellen' : authMode === 'reset' ? 'Passwort zurücksetzen' : 'Anmelden';
   return `<div class="auth-wrap"><div class="card auth">
-    <div class="auth-logo">${q ? QI.logo : '🌷'}</div>
-    <h1>${q ? 'Willkommen' : 'Willkommen!'}</h1>
+    <div class="auth-logo">${q ? LOGO('a') : '🌷'}</div>
+    <h1 class="no-tr">${q ? 'ARISE' : 'Arise'}</h1>
+    <div class="auth-tag no-tr">${TAGLINE}</div>
     <p class="auth-sub">Mit einem Konto sind deine Termine auf Handy und PC immer gleich.</p>
     ${authMode !== 'reset' ? `<div class="tabs-sub auth-tabs"><button data-auth-mode="login" class="${authMode==='login'?'on':''}">Anmelden</button><button data-auth-mode="register" class="${authMode==='register'?'on':''}">Konto erstellen</button></div>` : `<h2 class="auth-h">${title}</h2>`}
     <form id="authForm" autocomplete="on">
@@ -1248,7 +1253,7 @@ async function doScheduleNotifications(){
     const now = Date.now(), list = [];
     const at = (ds, hm) => { const [h, m] = String(hm || '09:00').split(':').map(Number); const d = parse(ds); d.setHours(h || 0, m || 0, 0, 0); return d; };
     const L = x => LANG === 'en' ? trStr(String(x)) : String(x);
-    const push = (key, title, body, when, horizonDays = 14) => { const t = when.getTime(); if (t > now + 30000 && t < now + horizonDays * 864e5) list.push({id: notifId(key), title: L(title), body: L(body), schedule: {at: when, allowWhileIdle: true}, smallIcon: 'ic_stat_lebensplaner', iconColor: '#F2B544'}); };
+    const push = (key, title, body, when, horizonDays = 14) => { const t = when.getTime(); if (t > now + 30000 && t < now + horizonDays * 864e5) list.push({id: notifId(key), title: L(title), body: L(body), schedule: {at: when, allowWhileIdle: true}, smallIcon: 'ic_stat_lebensplaner', iconColor: '#B48CFF'}); };
     for (let i = 0; i < 14; i++) {
       const ds = ymd(addDays(new Date(), i));
       if (ns.events) eventsOn(ds).forEach(e => {
@@ -1272,7 +1277,7 @@ async function notifyFocus(){
   if (!IS_NATIVE) return;
   try {
     await LocalNotifications.cancel({notifications: [{id: notifId('focus')}]});
-    if (focus) await LocalNotifications.schedule({notifications: [{id: notifId('focus'), title: 'Fokus geschafft! ⏱', body: `+${FOCUS_XP} XP – Zeit für eine kurze Pause.`, schedule: {at: new Date(focus.end), allowWhileIdle: true}, smallIcon: 'ic_stat_lebensplaner', iconColor: '#F2B544'}]});
+    if (focus) await LocalNotifications.schedule({notifications: [{id: notifId('focus'), title: 'Fokus geschafft! ⏱', body: `+${FOCUS_XP} XP – Zeit für eine kurze Pause.`, schedule: {at: new Date(focus.end), allowWhileIdle: true}, smallIcon: 'ic_stat_lebensplaner', iconColor: '#B48CFF'}]});
   } catch(e) {}
 }
 async function askNotifPermission(){
@@ -1304,7 +1309,7 @@ async function saveNotif(form){
 }
 async function testNotif(){
   if (!(await askNotifPermission())) { toast('Benachrichtigungen sind nicht erlaubt'); return; }
-  try { await LocalNotifications.schedule({notifications: [{id: notifId('test' + Date.now()), title: 'Lebensplaner', body: 'So sehen deine Erinnerungen aus. 👍', schedule: {at: new Date(Date.now() + 5000), allowWhileIdle: true}, smallIcon: 'ic_stat_lebensplaner', iconColor: '#F2B544'}]}); toast('Test kommt in 5 Sekunden'); } catch(e) { toast('Konnte keine Erinnerung planen'); }
+  try { await LocalNotifications.schedule({notifications: [{id: notifId('test' + Date.now()), title: 'Arise', body: 'So sehen deine Erinnerungen aus. 👍', schedule: {at: new Date(Date.now() + 5000), allowWhileIdle: true}, smallIcon: 'ic_stat_lebensplaner', iconColor: '#B48CFF'}]}); toast('Test kommt in 5 Sekunden'); } catch(e) { toast('Konnte keine Erinnerung planen'); }
 }
 
 /* ---------- Schichten (Schichtdienst) ---------- */
@@ -1634,6 +1639,7 @@ function afterRender(){
   const tl = $('#tlWrap');
   if (tl && tlScrolled !== ui.sel) { tlScrolled = ui.sel; const now = new Date(); tl.scrollTop = Math.max(0, ((ui.sel === today() ? now.getHours() - 1 : 7) * HH)); }
   if (!tl) tlScrolled = '';
+  if (achReady && S().brand !== 'arise') { setSetting({brand: 'arise', accent: 'violett'}); accent = 'violett'; appliedKey = ''; applyTheme(); }
   checkAchievements();
   scheduleNotifications();
   updateFocusPill();
@@ -1764,7 +1770,7 @@ const D = {
   'Möchtest du sie in dein Konto übernehmen?':'Do you want to move them into your account?','Daten übernehmen?':'Transfer data?','Auf diesem Gerät sind':'There are','gespeichert, die noch nicht in deinem Konto sind. Sollen sie übernommen werden?':'saved on this device that aren\u2019t in your account yet. Transfer them?',
   'Hier sind alle deine Daten. Kopiere den Text und speichere ihn z. B. in einer Notiz oder Datei.':'Here is all your data. Copy the text and save it, e.g. in a note or file.','Als Datei speichern':'Save as file',
   'Wähle eine exportierte Datei (.json) oder füge den Text ein. Vorhandene Einträge bleiben erhalten.':'Choose an exported file (.json) or paste the text. Existing entries are kept.','… oder Text hier einfügen':'… or paste text here',
-  'Das ist keine gültige Lebensplaner-Datei':'This is not a valid Life Planner file','Termine importieren':'Import events','Bitte eine .ics-Datei wählen':'Please choose an .ics file','Keine Termine in der Datei gefunden':'No events found in the file',
+  'Das ist keine gültige Arise-Datei':'This is not a valid Arise file','Violett':'Violet','Termine importieren':'Import events','Bitte eine .ics-Datei wählen':'Please choose an .ics file','Keine Termine in der Datei gefunden':'No events found in the file',
   'Exportiere deinen Kalender als':'Export your calendar as','-Datei (Outlook: Kalender → Freigeben/Veröffentlichen bzw. „Kalender speichern“; Google Kalender: Einstellungen → Importieren & Exportieren → Exportieren) und wähle sie hier aus.':' file (Outlook: Calendar → Share/Publish or “Save calendar”; Google Calendar: Settings → Import & export → Export) and choose it here.',
   'Dein Konto und':'Your account and','Termine, Aufgaben, Routinen und Notizen werden endgültig gelöscht. Zur Bestätigung gib dein Passwort ein.':'events, tasks, routines and notes will be permanently deleted. Enter your password to confirm.',
   'alle':'all','Endgültig löschen':'Delete permanently','Dein Konto wurde gelöscht':'Your account was deleted','Passwort':'Password','Bitte Text markieren und kopieren':'Please select and copy the text',
@@ -1987,7 +1993,7 @@ document.addEventListener('click', e => {
   if (t.hasAttribute('data-copy-export')) { copyText(exportJSON(), t); return; }
   if (t.hasAttribute('data-export-dl')) {
     const url = URL.createObjectURL(new Blob([exportJSON()], {type:'application/json'}));
-    const a = document.createElement('a'); a.href = url; a.download = 'lebensplaner-' + today() + '.json'; document.body.appendChild(a); a.click(); a.remove();
+    const a = document.createElement('a'); a.href = url; a.download = 'arise-' + today() + '.json'; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 2000); return;
   }
   if (t.dataset.copy) { copyText(t.dataset.copy, t); return; }
@@ -2064,7 +2070,7 @@ document.addEventListener('submit', e => {
     const form = e.target, file = $('#importFile') && $('#importFile').files[0];
     const go = text => {
       try { const n = importItems(parseImport(text)); closeModal(); toast(n + ' Einträge importiert'); }
-      catch(err) { toast('Das ist keine gültige Lebensplaner-Datei'); }
+      catch(err) { toast('Das ist keine gültige Arise-Datei'); }
     };
     if (file) { const r = new FileReader(); r.onload = () => go(String(r.result || '')); r.readAsText(file); }
     else { const txt = (new FormData(form).get('json') || '').toString().trim(); if (txt) go(txt); }

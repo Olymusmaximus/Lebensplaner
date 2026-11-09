@@ -1,8 +1,8 @@
 {
   "appId": "de.lebensplaner.app",
-  "appName": "Lebensplaner",
+  "appName": "Arise",
   "webDir": "dist",
-  "backgroundColor": "#0a0806",
+  "backgroundColor": "#07050d",
   "plugins": {
     "SystemBars": {
       "insetsHandling": "css",
@@ -10,7 +10,7 @@
     },
     "LocalNotifications": {
       "smallIcon": "ic_stat_lebensplaner",
-      "iconColor": "#F2B544"
+      "iconColor": "#B48CFF"
     }
   }
 }

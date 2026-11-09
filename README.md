@@ -1,13 +1,15 @@
-# ⟡ Lebensplaner
+# ⟡ Arise
+
+*Your life. Your level. Your system.* – dein Lebensplaner mit Terminen, Schichten, Quests, Routinen und Finanzen.
 
 Termine, Quests, Routinen und Notizen – mit Level & XP, im dunklen Quest-Design oder in Pastell.
 Läuft als **Android-App** und als **Web-Version am PC**. Beide synchronisieren über Firebase.
 
 | | Link |
 |---|---|
-| 📱 Android-App (APK) | [Lebensplaner.apk herunterladen](https://github.com/Olymusmaximus/Lebensplaner/releases/latest/download/Lebensplaner.apk) |
+| 📱 Android-App (APK) | [Arise.apk herunterladen](https://github.com/Olymusmaximus/Lebensplaner/releases/latest/download/Arise.apk) |
 | 💻 PC-Version | https://olymusmaximus.github.io/Lebensplaner/ |
-| 🛒 Play-Store-Datei | `Lebensplaner-PlayStore.aab` unter [Releases](https://github.com/Olymusmaximus/Lebensplaner/releases/latest) |
+| 🛒 Play-Store-Datei | `Arise-PlayStore.aab` unter [Releases](https://github.com/Olymusmaximus/Lebensplaner/releases/latest) |
 
 ## So funktioniert's
 
@@ -46,7 +48,7 @@ Ohne Schlüssel wird eine Test-Version (Debug-APK) gebaut.
 
 ## Später in den Play Store
 - Google-Play-Entwicklerkonto (einmalig 25 US$).
-- Neue App anlegen, `Lebensplaner-PlayStore.aab` in einen **geschlossenen Test** hochladen.
+- Neue App anlegen, `Arise-PlayStore.aab` in einen **geschlossenen Test** hochladen.
 - Neue private Konten: 12 Tester müssen 14 Tage lang dabei sein, dann Produktionszugang beantragen.
 - Benötigt werden außerdem: Datenschutzerklärung (`public/datenschutz.html` → PC-Version `/datenschutz.html`), Seite zum Konto löschen (`/konto-loeschen.html`), Store-Grafiken (`store/`). In beiden HTML-Seiten vorher Name und E-Mail eintragen.
 - Die App-ID ist `de.lebensplaner.app` (in `capacitor.config.json`). Sie lässt sich nach dem ersten Upload in den Play Store nicht mehr ändern.

@@ -18,5 +18,5 @@ export const firebaseConfig = {
 export const WEB_URL = "https://olymusmaximus.github.io/Lebensplaner/";
 
 // Direkter Download der Android-App, z. B.
-// "https://github.com/BENUTZERNAME/lebensplaner/releases/latest/download/Lebensplaner.apk"
-export const APK_URL = "https://github.com/Olymusmaximus/Lebensplaner/releases/latest/download/Lebensplaner.apk";
+// "https://github.com/BENUTZERNAME/lebensplaner/releases/latest/download/Arise.apk"
+export const APK_URL = "https://github.com/Olymusmaximus/Lebensplaner/releases/latest/download/Arise.apk";

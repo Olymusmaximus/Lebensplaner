@@ -211,12 +211,13 @@ header{position:relative}
 @media (max-width:560px){.progress{max-width:62%}}
 
 /* ================= QUEST-MODUS ================= */
+.acc-violett{--acc:#b48cff;--acc-rgb:180,140,255;--acc2:#6f6bff}
 .acc-gold{--acc:#f2b544;--acc-rgb:242,181,68;--acc2:#ff7a3d}
 .acc-smaragd{--acc:#3fe0a0;--acc-rgb:63,224,160;--acc2:#c4f25c}
 .acc-rubin{--acc:#ff4d6d;--acc-rgb:255,77,109;--acc2:#ffa13d}
 .th-quest{
   color-scheme:dark;
-  --bg:#0b0907; --panel:#15110d; --ink:#efe6d6; --muted:#9a8f7e; --line:rgba(var(--acc-rgb),.2);
+  --bg:#07050d; --panel:#120d1f; --ink:#ece6ff; --muted:#9c94bb; --line:rgba(var(--acc-rgb),.2);
   --accent:var(--acc); --accent-ink:var(--acc); --accent-soft:rgba(var(--acc-rgb),.14); --ok:var(--acc);
   --c-arbeit:#5aa9ff; --c-privat:#ff8a4c; --c-gesundheit:#4be08a; --c-familie:#c77dff; --c-sonstiges:#b9ab92;
   --shadow:0 14px 40px rgba(0,0,0,.45);
@@ -230,18 +231,18 @@ header{position:relative}
 .th-quest .brand .bt i{font-style:normal;color:var(--acc);text-shadow:0 0 14px rgba(var(--acc-rgb),.55)}
 .th-quest .qlogo svg{width:26px;height:26px;color:var(--acc);filter:drop-shadow(0 0 6px rgba(var(--acc-rgb),.8))}
 .th-quest .status{background:rgba(0,0,0,.5);color:var(--muted);border:1px solid var(--line);border-radius:2px;font-family:Rajdhani,sans-serif;letter-spacing:.06em}
-.th-quest nav{background:rgba(10,8,6,.88);border:1px solid var(--line);border-radius:3px;box-shadow:var(--shadow)}
+.th-quest nav{background:rgba(9,7,16,.88);border:1px solid var(--line);border-radius:3px;box-shadow:var(--shadow)}
 .th-quest nav button{border-radius:2px;font-family:Rajdhani,sans-serif;text-transform:uppercase;letter-spacing:.1em;font-weight:700;color:var(--muted)}
 .th-quest nav button:hover{color:var(--ink)}
 .th-quest nav button.on,.th-quest nav button.on:nth-child(n){background:rgba(var(--acc-rgb),.13);color:var(--acc);box-shadow:inset 0 -2px 0 var(--acc)}
 .th-quest nav .em svg{width:19px;height:19px;display:block}
 .th-quest nav button.on .em svg{filter:drop-shadow(0 0 5px rgba(var(--acc-rgb),.9))}
-.th-quest .bg-btn{background:rgba(10,8,6,.88);border:1px solid var(--line);border-radius:3px;color:var(--acc)}
+.th-quest .bg-btn{background:rgba(9,7,16,.88);border:1px solid var(--line);border-radius:3px;color:var(--acc)}
 .th-quest .bg-btn svg{width:20px;height:20px}
 .th-quest .bg-btn:hover{border-color:var(--acc);box-shadow:0 0 14px rgba(var(--acc-rgb),.3)}
 
 /* Panels mit Eck-Klammern */
-.th-quest .card{background:rgba(14,11,8,.84);border:1px solid var(--line);border-radius:3px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:var(--shadow)}
+.th-quest .card{background:rgba(13,10,24,.84);border:1px solid var(--line);border-radius:3px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:var(--shadow)}
 .th-quest .card::before,.th-quest .card.tape::before,.th-quest .modal::before{content:"";position:absolute;top:-1px;left:-1px;width:18px;height:18px;border-top:2px solid var(--acc);border-left:2px solid var(--acc);background:none;background-image:none;transform:none;opacity:1;border-radius:0;filter:drop-shadow(0 0 4px rgba(var(--acc-rgb),.7))}
 .th-quest .card::after,.th-quest .modal::after{content:"";position:absolute;bottom:-1px;right:-1px;width:18px;height:18px;border-bottom:2px solid var(--acc);border-right:2px solid var(--acc);filter:drop-shadow(0 0 4px rgba(var(--acc-rgb),.7));pointer-events:none}
 .th-quest .grid{gap:18px}
@@ -301,7 +302,7 @@ header{position:relative}
 .th-quest .streak b{color:var(--acc2)}
 
 /* Logbuch */
-.th-quest .card.note,.th-quest .card.note:nth-child(n){background:rgba(14,11,8,.86);transform:none;border:1px solid var(--line);border-radius:3px}
+.th-quest .card.note,.th-quest .card.note:nth-child(n){background:rgba(13,10,24,.86);transform:none;border:1px solid var(--line);border-radius:3px}
 .th-quest .card.note:hover{transform:translateY(-3px);border-color:var(--acc);box-shadow:0 0 22px rgba(var(--acc-rgb),.15)}
 .th-quest .note h3{font-size:18px;color:var(--acc)}
 .th-quest .note p{color:var(--muted)}
@@ -316,7 +317,7 @@ header{position:relative}
 .th-quest label{font-family:Rajdhani,sans-serif;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:700}
 .th-quest input[type=text],.th-quest input[type=date],.th-quest input[type=time],.th-quest select,.th-quest textarea{background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.1);border-radius:0;color:var(--ink)}
 .th-quest input:focus,.th-quest select:focus,.th-quest textarea:focus{border-color:var(--acc);background:rgba(0,0,0,.6);box-shadow:0 0 0 3px rgba(var(--acc-rgb),.13)}
-.th-quest select option{background:#15110d}
+.th-quest select option{background:#120d1f}
 .th-quest .cats button{background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:0;font-family:Rajdhani,sans-serif;letter-spacing:.05em;text-transform:uppercase}
 .th-quest .cats button.on{border-color:var(--acc);background:rgba(var(--acc-rgb),.12)}
 .th-quest .cats button .dot{transform:rotate(45deg)}
@@ -367,7 +368,7 @@ header{position:relative}
   radial-gradient(ellipse 60% 50% at 105% 105%,rgba(var(--acc-rgb),.1),transparent 60%),
   radial-gradient(ellipse 50% 40% at -5% 80%,rgba(255,255,255,.035),transparent 60%),
   url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' fill='none' stroke='%23ffffff' stroke-opacity='.045' stroke-width='1'/%3E%3C/svg%3E") 0 0/56px 100px,
-  #0a0806;overflow:hidden}
+  #07050d;overflow:hidden}
 .bg-quest::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 3px);pointer-events:none}
 .bg-quest::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.65));pointer-events:none}
 .bg-quest .beam{position:absolute;left:-20%;right:-20%;height:1px;background:linear-gradient(90deg,transparent,rgba(var(--acc-rgb),.5),transparent);top:0;animation:scan 9s linear infinite;opacity:.6}
@@ -376,7 +377,7 @@ header{position:relative}
 @keyframes rise{0%{transform:translate(0,0);opacity:0}12%{opacity:.85}80%{opacity:.5}100%{transform:translate(var(--dx),-108vh);opacity:0}}
 @media (max-width:720px){.th-quest nav button{letter-spacing:.03em;font-size:10.5px}.th-quest nav{border-radius:2px}}
 @media (prefers-reduced-motion:reduce){.ember,.bg-quest .beam{display:none}.xpbar i::after,.lvl .hex polygon.in{animation:none}}
-.pv-quest{background:radial-gradient(ellipse at 50% -10%,rgba(242,181,68,.55),transparent 65%),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='50'%3E%3Cpath d='M14 33L0 25L0 8L14 0L28 8L28 25L14 33L14 50' fill='none' stroke='%23ffffff' stroke-opacity='.1'/%3E%3C/svg%3E") 0 0/28px 50px,#0b0907}
+.pv-quest{background:radial-gradient(ellipse at 50% -10%,rgba(180,140,255,.55),transparent 65%),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='50'%3E%3Cpath d='M14 33L0 25L0 8L14 0L28 8L28 25L14 33L14 50' fill='none' stroke='%23ffffff' stroke-opacity='.1'/%3E%3C/svg%3E") 0 0/28px 50px,#07050d}
 
 /* Level-Aufstieg */
 .lvlup{position:fixed;inset:0;z-index:80;display:grid;place-items:center;background:radial-gradient(circle,rgba(0,0,0,.6),rgba(0,0,0,.9));opacity:0;pointer-events:none;transition:opacity .3s;cursor:pointer}
@@ -734,7 +735,7 @@ nav button.on:nth-child(7){background:var(--lav-soft)}
 .th-quest .shyr-m,.th-quest .shyr b,.th-quest .shyr small{font-family:Rajdhani,sans-serif;letter-spacing:.04em}
 .th-quest .shyr b{font-size:16px}
 .th-quest .shcalc b{font-family:Rajdhani,sans-serif;font-size:18px;color:var(--acc)}
-.th-quest .swatches button{border-radius:0;border-color:#14110d;box-shadow:0 0 0 1px rgba(255,255,255,.15)}
+.th-quest .swatches button{border-radius:0;border-color:#0d0a18;box-shadow:0 0 0 1px rgba(255,255,255,.15)}
 .th-quest .swatches button.on{box-shadow:0 0 0 2px var(--acc),0 0 12px var(--sc)}
 .th-quest .shtypes button .shbadge{border-radius:0}
 .th-quest .wev.wshift{background:rgba(255,255,255,.07)}
@@ -749,7 +750,7 @@ nav button.on:nth-child(7){background:var(--lav-soft)}
   .f3{grid-template-columns:1fr 1fr}.f3>div:last-child{grid-column:1/-1}
 }
 /* Navigation mit 7 Bereichen */
-@media (min-width:721px) and (max-width:1180px){
+@media (min-width:721px) and (max-width:1300px){
   nav button{padding:8px 9px;gap:5px}
   .th-quest nav button{letter-spacing:.05em;font-size:13.5px}
 }
@@ -782,3 +783,16 @@ nav button.on:nth-child(7){background:var(--lav-soft)}
 }
 input[type=number]{width:100%;border:2px solid var(--line);background:#fffaf7;border-radius:14px;padding:9px 12px;outline:none;font:inherit;color:inherit}
 .th-quest input[type=number]{background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.1);border-radius:0;color:var(--ink)}
+
+/* ---------- ARISE ---------- */
+.th-quest .qlogo svg{width:34px;height:34px;color:inherit;filter:drop-shadow(0 0 6px rgba(140,90,255,.85)) drop-shadow(0 0 14px rgba(110,70,255,.45))}
+.th-quest .brand .bt{letter-spacing:.34em;color:#e4d6ff;text-shadow:0 0 14px rgba(160,110,255,.75),0 0 30px rgba(110,70,255,.35)}
+.auth-logo svg{width:84px!important;height:84px!important;filter:drop-shadow(0 0 10px rgba(140,90,255,.85)) drop-shadow(0 0 26px rgba(110,70,255,.45))!important}
+.th-quest .auth-logo{width:96px;height:96px;margin:0 auto 6px}
+.th-quest .auth h1{letter-spacing:.3em;font-size:36px;color:#e4d6ff;text-shadow:0 0 18px rgba(160,110,255,.7);text-align:center}
+.auth-tag{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:-2px 0 14px;font-weight:700}
+.th-quest .auth-tag{font-family:Rajdhani,sans-serif;color:#b9a3ef;text-align:center;font-size:13px}
+.acc-violett .pill.fire,.acc-violett.th-quest .pill.fire{border-color:rgba(111,107,255,.4);background:rgba(111,107,255,.08)}
+.th-quest .bg-quest{background-color:#07050d}
+.th-quest .auth-sub{text-align:center}
+@media (max-width:420px){.auth-tag{letter-spacing:.08em;font-size:11.5px}.th-quest .auth h1{font-size:32px}}
