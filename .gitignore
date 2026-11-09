@@ -4,3 +4,4 @@ android/
 *.jks
 *.keystore
 .DS_Store
+!keys/test-debug.keystore
