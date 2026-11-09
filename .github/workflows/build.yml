@@ -115,15 +115,7 @@ jobs:
           fi
           gh release create "$TAG" out/* --title "Lebensplaner $TAG" --notes "$NOTES" --latest
 
-  pages:
-    name: PC-Version veröffentlichen
-    needs: build
-    runs-on: ubuntu-24.04
-    continue-on-error: true
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
-    steps:
-      - name: Auf GitHub Pages veröffentlichen
+      - name: PC-Version auf GitHub Pages veröffentlichen
         id: deploy
+        continue-on-error: true
         uses: actions/deploy-pages@v4
