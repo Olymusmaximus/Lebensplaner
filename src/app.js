@@ -134,7 +134,7 @@ const H = key => Q() ? `${QI[TXT.quest.hic[key]]}<span>${TXT.quest.h[key]}</span
 const habIcon = x => Q() ? `<span class="hi">${QHAB[x.emoji] || QHAB['🌱']}</span>` : esc(x.emoji || '🌱') + ' ';
 
 let syncState = 'busy';
-function setStatus(t, st){ const el=$('#status'); el.textContent = t; if (st) { syncState = st; el.dataset.state = st; } }
+function setStatus(t, st){ const el=$('#status'); el.textContent = t; if (st) { syncState = st; el.dataset.state = st; document.body.dataset.sync = st; } const b = $('#btnAcc'); if (b) b.title = (LANG === 'en' ? trStr(t) : t) + ' · ' + (LANG === 'en' ? 'Account & sync' : 'Konto & Sync'); }
 function toast(t){ const el=$('#toast'); el.textContent=t; el.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>el.classList.remove('show'),2400); }
 
 function readLocal(){ try { const a = JSON.parse(localStorage.getItem(LS)||'[]'); return Array.isArray(a) ? a.filter(i => i && i.id && i.kind) : []; } catch(e){ return []; } }
