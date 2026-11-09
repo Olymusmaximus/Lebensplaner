@@ -85,7 +85,7 @@ const HABIT_EMOJIS = ['🌱','💧','📖','🧘','🏃','🥗','😴','💊','�
 const QUOTES = ['Kleine Schritte sind auch Schritte.','Du schaffst das – einen Tag nach dem anderen.','Heute ist ein guter Tag für einen guten Tag.','Sei lieb zu dir selbst.','Fortschritt, nicht Perfektion.','Atme durch. Du hast Zeit.','Mach heute etwas, worüber dein zukünftiges Ich sich freut.','Ruhe ist auch produktiv.','Glaub an dich, so wie deine beste Freundin an dich glaubt.','Jeder Haken zählt.'];
 const MOTTOS = ['Jeder Tag ist ein neues Level.','Kleine Siege summieren sich.','Disziplin schlägt Motivation.','Heute trainieren, morgen stärker.','Fokus. Eine Quest nach der anderen.','Dein zukünftiges Ich zählt auf dich.','Fortschritt ist eine Entscheidung.','Auch Pausen laden Energie auf.','Wer dranbleibt, levelt auf.','Mach den ersten Schritt – der Rest folgt.'];
 const BGS = [['traum','Traum ✨'],['wolken','Wolken ☁️'],['blumen','Blümchen 🌼'],['karo','Vichy-Karo 🎀'],['herzen','Herzen 💗'],['salbei','Salbei 🌿'],['punkte','Punktpapier 📓']];
-const ACCS = [['violett','Violett','#b48cff'],['gold','Gold','#f2b544'],['smaragd','Smaragd','#3fe0a0'],['rubin','Rubin','#ff4d6d']];
+const ACCS = [['violett','Lila-Blau','#7d7dff'],['gold','Gold','#f2b544'],['smaragd','Smaragd','#3fe0a0'],['rubin','Rubin','#ff4d6d']];
 const TABS = ['heute','kalender','schichten','aufgaben','gewohnheiten','finanzen','notizen'];
 
 const TXT = {
@@ -1253,7 +1253,7 @@ async function doScheduleNotifications(){
     const now = Date.now(), list = [];
     const at = (ds, hm) => { const [h, m] = String(hm || '09:00').split(':').map(Number); const d = parse(ds); d.setHours(h || 0, m || 0, 0, 0); return d; };
     const L = x => LANG === 'en' ? trStr(String(x)) : String(x);
-    const push = (key, title, body, when, horizonDays = 14) => { const t = when.getTime(); if (t > now + 30000 && t < now + horizonDays * 864e5) list.push({id: notifId(key), title: L(title), body: L(body), schedule: {at: when, allowWhileIdle: true}, smallIcon: 'ic_stat_lebensplaner', iconColor: '#B48CFF'}); };
+    const push = (key, title, body, when, horizonDays = 14) => { const t = when.getTime(); if (t > now + 30000 && t < now + horizonDays * 864e5) list.push({id: notifId(key), title: L(title), body: L(body), schedule: {at: when, allowWhileIdle: true}, smallIcon: 'ic_stat_lebensplaner', iconColor: '#7D85FF'}); };
     for (let i = 0; i < 14; i++) {
       const ds = ymd(addDays(new Date(), i));
       if (ns.events) eventsOn(ds).forEach(e => {
@@ -1277,7 +1277,7 @@ async function notifyFocus(){
   if (!IS_NATIVE) return;
   try {
     await LocalNotifications.cancel({notifications: [{id: notifId('focus')}]});
-    if (focus) await LocalNotifications.schedule({notifications: [{id: notifId('focus'), title: 'Fokus geschafft! ⏱', body: `+${FOCUS_XP} XP – Zeit für eine kurze Pause.`, schedule: {at: new Date(focus.end), allowWhileIdle: true}, smallIcon: 'ic_stat_lebensplaner', iconColor: '#B48CFF'}]});
+    if (focus) await LocalNotifications.schedule({notifications: [{id: notifId('focus'), title: 'Fokus geschafft! ⏱', body: `+${FOCUS_XP} XP – Zeit für eine kurze Pause.`, schedule: {at: new Date(focus.end), allowWhileIdle: true}, smallIcon: 'ic_stat_lebensplaner', iconColor: '#7D85FF'}]});
   } catch(e) {}
 }
 async function askNotifPermission(){
@@ -1309,7 +1309,7 @@ async function saveNotif(form){
 }
 async function testNotif(){
   if (!(await askNotifPermission())) { toast('Benachrichtigungen sind nicht erlaubt'); return; }
-  try { await LocalNotifications.schedule({notifications: [{id: notifId('test' + Date.now()), title: 'Arise', body: 'So sehen deine Erinnerungen aus. 👍', schedule: {at: new Date(Date.now() + 5000), allowWhileIdle: true}, smallIcon: 'ic_stat_lebensplaner', iconColor: '#B48CFF'}]}); toast('Test kommt in 5 Sekunden'); } catch(e) { toast('Konnte keine Erinnerung planen'); }
+  try { await LocalNotifications.schedule({notifications: [{id: notifId('test' + Date.now()), title: 'Arise', body: 'So sehen deine Erinnerungen aus. 👍', schedule: {at: new Date(Date.now() + 5000), allowWhileIdle: true}, smallIcon: 'ic_stat_lebensplaner', iconColor: '#7D85FF'}]}); toast('Test kommt in 5 Sekunden'); } catch(e) { toast('Konnte keine Erinnerung planen'); }
 }
 
 /* ---------- Schichten (Schichtdienst) ---------- */
@@ -1770,7 +1770,7 @@ const D = {
   'Möchtest du sie in dein Konto übernehmen?':'Do you want to move them into your account?','Daten übernehmen?':'Transfer data?','Auf diesem Gerät sind':'There are','gespeichert, die noch nicht in deinem Konto sind. Sollen sie übernommen werden?':'saved on this device that aren\u2019t in your account yet. Transfer them?',
   'Hier sind alle deine Daten. Kopiere den Text und speichere ihn z. B. in einer Notiz oder Datei.':'Here is all your data. Copy the text and save it, e.g. in a note or file.','Als Datei speichern':'Save as file',
   'Wähle eine exportierte Datei (.json) oder füge den Text ein. Vorhandene Einträge bleiben erhalten.':'Choose an exported file (.json) or paste the text. Existing entries are kept.','… oder Text hier einfügen':'… or paste text here',
-  'Das ist keine gültige Arise-Datei':'This is not a valid Arise file','Violett':'Violet','Termine importieren':'Import events','Bitte eine .ics-Datei wählen':'Please choose an .ics file','Keine Termine in der Datei gefunden':'No events found in the file',
+  'Das ist keine gültige Arise-Datei':'This is not a valid Arise file','Lila-Blau':'Purple-blue','Termine importieren':'Import events','Bitte eine .ics-Datei wählen':'Please choose an .ics file','Keine Termine in der Datei gefunden':'No events found in the file',
   'Exportiere deinen Kalender als':'Export your calendar as','-Datei (Outlook: Kalender → Freigeben/Veröffentlichen bzw. „Kalender speichern“; Google Kalender: Einstellungen → Importieren & Exportieren → Exportieren) und wähle sie hier aus.':' file (Outlook: Calendar → Share/Publish or “Save calendar”; Google Calendar: Settings → Import & export → Export) and choose it here.',
   'Dein Konto und':'Your account and','Termine, Aufgaben, Routinen und Notizen werden endgültig gelöscht. Zur Bestätigung gib dein Passwort ein.':'events, tasks, routines and notes will be permanently deleted. Enter your password to confirm.',
   'alle':'all','Endgültig löschen':'Delete permanently','Dein Konto wurde gelöscht':'Your account was deleted','Passwort':'Password','Bitte Text markieren und kopieren':'Please select and copy the text',

@@ -211,7 +211,7 @@ header{position:relative}
 @media (max-width:560px){.progress{max-width:62%}}
 
 /* ================= QUEST-MODUS ================= */
-.acc-violett{--acc:#b48cff;--acc-rgb:180,140,255;--acc2:#6f6bff}
+.acc-violett{--acc:#7d86ff;--acc-rgb:125,134,255;--acc2:#3d6bff;--acc2-rgb:61,107,255}
 .acc-gold{--acc:#f2b544;--acc-rgb:242,181,68;--acc2:#ff7a3d}
 .acc-smaragd{--acc:#3fe0a0;--acc-rgb:63,224,160;--acc2:#c4f25c}
 .acc-rubin{--acc:#ff4d6d;--acc-rgb:255,77,109;--acc2:#ffa13d}
@@ -792,7 +792,27 @@ input[type=number]{width:100%;border:2px solid var(--line);background:#fffaf7;bo
 .th-quest .auth h1{letter-spacing:.3em;font-size:36px;color:#e4d6ff;text-shadow:0 0 18px rgba(160,110,255,.7);text-align:center}
 .auth-tag{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:-2px 0 14px;font-weight:700}
 .th-quest .auth-tag{font-family:Rajdhani,sans-serif;color:#b9a3ef;text-align:center;font-size:13px}
-.acc-violett .pill.fire,.acc-violett.th-quest .pill.fire{border-color:rgba(111,107,255,.4);background:rgba(111,107,255,.08)}
+.acc-violett .pill.fire,.acc-violett.th-quest .pill.fire{border-color:rgba(61,107,255,.45);background:rgba(61,107,255,.1)}
 .th-quest .bg-quest{background-color:#07050d}
 .th-quest .auth-sub{text-align:center}
 @media (max-width:420px){.auth-tag{letter-spacing:.08em;font-size:11.5px}.th-quest .auth h1{font-size:32px}}
+
+/* Arise: Lila + Blau wie im Logo */
+.acc-violett .bg-quest{background:
+  radial-gradient(ellipse 75% 50% at 25% -10%,rgba(150,80,255,.28),transparent 62%),
+  radial-gradient(ellipse 70% 55% at 85% 0%,rgba(45,90,255,.24),transparent 60%),
+  radial-gradient(ellipse 65% 55% at 105% 105%,rgba(40,80,255,.26),transparent 62%),
+  radial-gradient(ellipse 55% 45% at -5% 85%,rgba(130,70,255,.12),transparent 60%),
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' fill='none' stroke='%23a9b4ff' stroke-opacity='.05' stroke-width='1'/%3E%3C/svg%3E") 0 0/56px 100px,
+  #06050e}
+.acc-violett .bg-quest .beam{background:linear-gradient(90deg,transparent,rgba(61,107,255,.6),rgba(160,110,255,.6),transparent)}
+.acc-violett .ember:nth-child(even){background:#4d7bff;box-shadow:0 0 6px 1px rgba(61,107,255,.95)}
+.acc-violett .ember:nth-child(3n){background:#c07bff;box-shadow:0 0 6px 1px rgba(170,100,255,.9)}
+.acc-violett .th-quest .brand .bt,.acc-violett.th-quest .brand .bt{color:#dcd8ff;text-shadow:0 0 14px rgba(110,110,255,.8),0 0 32px rgba(140,80,255,.4)}
+.acc-violett.th-quest .btn.primary{background:linear-gradient(90deg,#4a6dff,#9a7dff);border-color:transparent;color:#0b0820}
+.acc-violett.th-quest .btn.primary:hover{background:linear-gradient(90deg,#6585ff,#b39bff);border-color:transparent;box-shadow:0 0 18px rgba(90,110,255,.55)}
+.acc-violett.th-quest .card{border-color:rgba(120,120,255,.2)}
+.acc-violett.th-quest .card::after{border-color:#6f86ff}
+.acc-violett.th-quest .sec-h h2 svg{color:#7f9bff;filter:drop-shadow(0 0 5px rgba(61,107,255,.7))}
+.acc-violett.th-quest nav button.on{background:linear-gradient(90deg,rgba(61,107,255,.16),rgba(143,125,255,.16));box-shadow:inset 0 -2px 0 #7f8dff;color:#b3b8ff}
+.acc-violett.th-quest .xpbar i,.acc-violett.th-quest .cbar-fill.tot,.acc-violett.th-quest .goal-track .cbar-fill{background:linear-gradient(90deg,#3d6bff,#9d7dff);box-shadow:0 0 12px rgba(90,110,255,.7)}
