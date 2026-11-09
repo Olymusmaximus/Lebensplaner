@@ -56,6 +56,7 @@ const QI = {
   trophy: svg('<path d="M7.5 4h9v5a4.5 4.5 0 0 1-9 0z"/><path d="M7.5 6H4.5a3 3 0 0 0 3 4M16.5 6h3a3 3 0 0 1-3 4M12 13.5V17M8.5 20.5h7M9.5 17h5v3.5h-5z"/>'),
   timer: svg('<circle cx="12" cy="13.5" r="7.5"/><path d="M12 13.5V9.5M9.5 2.5h5M18.5 6.5l1.5-1.5"/>'),
   bell: svg('<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>'),
+  schichten: svg('<rect x="3" y="5" width="18" height="15.5" rx="1"/><path d="M3 9.5h18M8 3v4M16 3v4"/><circle cx="12" cy="15" r="3.6"/><path d="M12 13.2V15l1.3.9"/>'),
   spark: svg('<path d="M12 3l1.8 5.6L19.5 10l-5.7 1.6L12 17l-1.8-5.4L4.5 10l5.7-1.4z"/>')
 };
 const QHAB = {
@@ -75,17 +76,17 @@ const QHAB = {
   '☀️': svg('<circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/>'),
   '💖': svg('<path d="M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7a4.3 4.3 0 0 1 7.5 2.8C19.5 15.4 12 20 12 20z"/>')
 };
-const EMO = {heute:'🌤️',kalender:'📅',aufgaben:'✏️',gewohnheiten:'🌱',finanzen:'💶',notizen:'💌'};
+const EMO = {heute:'🌤️',kalender:'📅',schichten:'🕒',aufgaben:'✏️',gewohnheiten:'🌱',finanzen:'💶',notizen:'💌'};
 const HABIT_EMOJIS = ['🌱','💧','📖','🧘','🏃','🥗','😴','💊','🌿','✍️','🎧','🧹','💸','☀️','💖'];
 const QUOTES = ['Kleine Schritte sind auch Schritte.','Du schaffst das – einen Tag nach dem anderen.','Heute ist ein guter Tag für einen guten Tag.','Sei lieb zu dir selbst.','Fortschritt, nicht Perfektion.','Atme durch. Du hast Zeit.','Mach heute etwas, worüber dein zukünftiges Ich sich freut.','Ruhe ist auch produktiv.','Glaub an dich, so wie deine beste Freundin an dich glaubt.','Jeder Haken zählt.'];
 const MOTTOS = ['Jeder Tag ist ein neues Level.','Kleine Siege summieren sich.','Disziplin schlägt Motivation.','Heute trainieren, morgen stärker.','Fokus. Eine Quest nach der anderen.','Dein zukünftiges Ich zählt auf dich.','Fortschritt ist eine Entscheidung.','Auch Pausen laden Energie auf.','Wer dranbleibt, levelt auf.','Mach den ersten Schritt – der Rest folgt.'];
 const BGS = [['traum','Traum ✨'],['wolken','Wolken ☁️'],['blumen','Blümchen 🌼'],['karo','Vichy-Karo 🎀'],['herzen','Herzen 💗'],['salbei','Salbei 🌿'],['punkte','Punktpapier 📓']];
 const ACCS = [['gold','Gold','#f2b544'],['smaragd','Smaragd','#3fe0a0'],['rubin','Rubin','#ff4d6d']];
-const TABS = ['heute','kalender','aufgaben','gewohnheiten','finanzen','notizen'];
+const TABS = ['heute','kalender','schichten','aufgaben','gewohnheiten','finanzen','notizen'];
 
 const TXT = {
   pastel: {
-    tabs:{heute:'Heute',kalender:'Kalender',aufgaben:'Aufgaben',gewohnheiten:'Gewohnheiten',finanzen:'Finanzen',notizen:'Notizen'},
+    tabs:{heute:'Heute',kalender:'Kalender',schichten:'Schichten',aufgaben:'Aufgaben',gewohnheiten:'Gewohnheiten',finanzen:'Finanzen',notizen:'Notizen'},
     h:{today:'🗓️ Heute',todos:'✏️ To-dos',habits:'🌱 Gewohnheiten',week:'💜 Nächste 7 Tage',tasks:'✏️ Meine To-dos',habitsPage:'🌱 Gewohnheiten',notes:'💌 Notizen',due:'✏️ Fällige To-dos'},
     add:{event:'+ Termin',task:'+ Aufgabe',habit:'+ Neu',habitBig:'+ Gewohnheit',note:'+ Notiz',details:'Mit Details …',quickBtn:'Hinzufügen'},
     empty:{today:'Keine Termine heute – Zeit für dich ☕',todos:'Nichts Dringendes – stark! 🎉',habits:'Leg z.&nbsp;B. „2 Liter Wasser“ oder „10 Min. lesen“ an.',week:'Die Woche ist noch frei 🌈',tasks:'Hier ist nichts – genieß es ✨',habitsPage:'Noch keine Gewohnheiten. Kleine tägliche Dinge – Sport, Lesen, Wasser trinken, früh schlafen – kannst du hier abhaken und deine Serie wachsen sehen.',notes:'Ideen, Einkaufslisten, Ziele – alles, was du festhalten willst.',day:'Keine Termine.',loading:'Einen Moment … 🌷'},
@@ -96,7 +97,7 @@ const TXT = {
     prio:[['hoch','Wichtig'],['normal','Normal'],['niedrig','Irgendwann']]
   },
   quest: {
-    tabs:{heute:'Übersicht',kalender:'Kalender',aufgaben:'Quests',gewohnheiten:'Routinen',finanzen:'Finanzen',notizen:'Logbuch'},
+    tabs:{heute:'Übersicht',kalender:'Kalender',schichten:'Schichten',aufgaben:'Quests',gewohnheiten:'Routinen',finanzen:'Finanzen',notizen:'Logbuch'},
     h:{today:'Heute im Plan',todos:'Aktive Quests',habits:'Routinen',week:'Nächste 7 Tage',tasks:'Quest-Log',habitsPage:'Routinen',notes:'Logbuch',due:'Fällige Quests'},
     hic:{today:'kalender',todos:'aufgaben',habits:'gewohnheiten',week:'compass',tasks:'aufgaben',habitsPage:'gewohnheiten',notes:'notizen',due:'aufgaben'},
     add:{event:'+ Termin',task:'+ Quest',habit:'+ Neu',habitBig:'+ Routine',note:'+ Eintrag',details:'Mit Details',quickBtn:'Annehmen'},
@@ -357,7 +358,7 @@ function parseImport(text){
   let data = JSON.parse(text);
   if (data && !Array.isArray(data) && Array.isArray(data.items)) data = data.items;
   if (!Array.isArray(data)) throw new Error('format');
-  const ok = ['event','task','habit','note','settings','txn','recurring','goal','reward'];
+  const ok = ['event','task','habit','note','settings','txn','recurring','goal','reward','shift'];
   return data.map(x => (x && x.data && x.id && !x.kind) ? {...x.data, id: x.id} : x)
              .filter(x => x && typeof x === 'object' && typeof x.id === 'string' && ok.includes(x.kind));
 }
@@ -461,7 +462,7 @@ function render(){
   renderNav();
   const m = $('#main');
   if (backend === 'none') { m.innerHTML = `<div class="card empty">${T().empty.loading}</div>`; return; }
-  m.innerHTML = (({heute:viewToday,kalender:viewCalendar,aufgaben:viewTasks,gewohnheiten:viewHabits,finanzen:viewFinance,notizen:viewNotes,profil:viewProfile})[ui.tab] || viewToday)();
+  m.innerHTML = (({heute:viewToday,kalender:viewCalendar,schichten:viewShifts,aufgaben:viewTasks,gewohnheiten:viewHabits,finanzen:viewFinance,notizen:viewNotes,profil:viewProfile})[ui.tab] || viewToday)();
   afterRender();
 }
 
@@ -537,6 +538,7 @@ function viewToday(){
   const openAll = all('task').filter(t=>!t.done).length;
   const tx = T();
   return `${q ? questHero(td, evs, openAll, habits, habitsDone) : pastelHero(td, evs, openAll, habits, habitsDone)}
+  ${shiftTodayCard()}
   <div class="grid g2">
     <div class="card tape t-pink"><div class="sec-h"><h2>${H('today')}</h2><button class="btn" data-new="event" data-date="${td}">${tx.add.event}</button></div>
       <div class="list">${evs.length ? evs.map(eventRow).join('') : `<div class="empty">${tx.empty.today}</div>`}</div></div>
@@ -566,8 +568,9 @@ function calMonthView(){
     if (i>=35 && d.getMonth()!==m) break;
     const evs = eventsOn(ds);
     const dueTasks = all('task').filter(t=>t.due===ds && !t.done).length;
+    const shs = shiftsOn(ds);
     cells += `<div class="day ${d.getMonth()!==m?'out':''} ${ds===td?'today':''} ${ds===ui.sel?'sel':''}" data-sel="${ds}">
-      <div class="n">${d.getDate()}</div>
+      <div class="n">${d.getDate()}</div>${shs.length ? `<div class="shmini">${shs.slice(0, 2).map(s => `<i style="--sc:${shMeta(s).color}">${esc(shMeta(s).short)}</i>`).join('')}</div>` : ''}
       ${evs.slice(0,2).map(e=>`<div class="ev" style="background:${catColor(e.cat)};--cc:${catColor(e.cat)}">${e.start?esc(e.start)+' ':''}${esc(e.title)}</div>`).join('')}
       ${evs.length>2?`<div class="more">+${evs.length-2}</div>`:''}
       ${dueTasks?`<div class="more">☐ ${dueTasks}</div>`:''}
@@ -584,7 +587,8 @@ function calMonthView(){
     </div>
     <div class="card tape t-butter">
       <div class="sec-h"><h2 ${Q()?'':'style="font-size:28px"'}>${Q() ? QI.kalender + '<span>' + fmtLong(ui.sel) + '</span>' : fmtLong(ui.sel)}</h2></div>
-      <div class="row" style="margin:8px 0"><button class="btn primary" data-new="event" data-date="${ui.sel}">${tx.add.event}</button><button class="btn" data-new="task" data-date="${ui.sel}">${tx.add.task}</button></div>
+      <div class="row" style="margin:8px 0;flex-wrap:wrap"><button class="btn primary" data-new="event" data-date="${ui.sel}">${tx.add.event}</button><button class="btn" data-new="task" data-date="${ui.sel}">${tx.add.task}</button><button class="btn" data-new="shift" data-date="${ui.sel}">+ Schicht</button></div>
+      ${shiftDayList(ui.sel)}
       <div class="list">${evs.length ? evs.map(eventRow).join('') : `<div class="empty">${tx.empty.day}</div>`}</div>
       ${tasks.length?`<h3 style="font-size:${Q()?'16px':'24px'};margin:16px 0 2px">${H('due')}</h3><div class="list">${tasks.map(taskRow).join('')}</div>`:''}
       ${financeDayList(ui.sel)}
@@ -1079,6 +1083,7 @@ function calWeekView(){
     <div class="cal-h"><h2>${fmtShort(days[0])} – ${fmtShort(days[6])}</h2><div class="row"><button class="btn icon" data-calnav="-7" aria-label="vorige Woche">‹</button><button class="btn" data-calnav="0">Heute</button><button class="btn icon" data-calnav="7" aria-label="nächste Woche">›</button></div></div>
     <div class="week">${days.map(ds => { const evs = eventsOn(ds), ts = all('task').filter(t => t.due === ds && !t.done), pays = finRowsForDates(ds, ds);
       return `<div class="wday ${ds === td ? 'today' : ''}"><div class="wday-h" data-dayopen="${ds}"><b>${WD[(parse(ds).getDay() + 6) % 7]}</b> ${parse(ds).getDate()}.</div><div class="wday-b">
+        ${shiftsOn(ds).map(s => { const mt = shMeta(s); return `<div class="wev wshift" data-edit="${s.id}" style="--cc:${mt.color}"><span>${s.mode === 'fixed' ? fmtH(shiftHours(s)) : esc(s.start) + '–' + esc(s.end)}</span>${esc(mt.name)}</div>`; }).join('')}
         ${evs.map(e => `<div class="wev" data-edit="${e.id}" style="--cc:${catColor(e.cat)}"><span>${e.start ? esc(e.start) : 'ganztägig'}</span>${esc(e.title)}</div>`).join('')}
         ${ts.map(t => `<div class="wev wtask" data-edit="${t.id}"><span>Quest</span>${esc(t.title)}</div>`).join('')}
         ${pays.map(r => `<div class="wev wpay" data-edit="${r.id}"><span>${r.type === 'income' ? '+' : '−'}${eur(r.amount)}</span>${esc(r.title)}</div>`).join('')}
@@ -1097,9 +1102,10 @@ function calDayView(){
   const allday = evs.filter(e => !e.start), ts = all('task').filter(t => t.due === ds).sort(sortTasks);
   return `<div class="card tape t-pink">${calSwitch()}
     <div class="cal-h"><h2>${fmtLong(ds)}</h2><div class="row"><button class="btn icon" data-calnav="-1" aria-label="voriger Tag">‹</button><button class="btn" data-calnav="0">Heute</button><button class="btn icon" data-calnav="1" aria-label="nächster Tag">›</button></div></div>
-    <div class="row" style="margin-bottom:10px;flex-wrap:wrap"><button class="btn primary" data-new="event" data-date="${ds}">${tx.add.event}</button><button class="btn" data-new="task" data-date="${ds}">${tx.add.task}</button></div>
+    <div class="row" style="margin-bottom:10px;flex-wrap:wrap"><button class="btn primary" data-new="event" data-date="${ds}">${tx.add.event}</button><button class="btn" data-new="task" data-date="${ds}">${tx.add.task}</button><button class="btn" data-new="shift" data-date="${ds}">+ Schicht</button></div>
+    ${shiftDayList(ds)}
     ${allday.length ? `<div class="allday">${allday.map(e => `<div class="wev" data-edit="${e.id}" style="--cc:${catColor(e.cat)}"><span>ganztägig</span>${esc(e.title)}</div>`).join('')}</div>` : ''}
-    <div class="tl-wrap" id="tlWrap"><div class="timeline" style="height:${24 * HH}px">${hours}${nowLine}${evHTML}</div></div>
+    <div class="tl-wrap" id="tlWrap"><div class="timeline" style="height:${24 * HH}px">${hours}${shiftBands(ds)}${nowLine}${evHTML}</div></div>
     ${ts.length ? `<h3 style="font-size:${Q() ? '16px' : '24px'};margin:16px 0 2px">${H('due')}</h3><div class="list">${ts.map(taskRow).join('')}</div>` : ''}
     ${financeDayList(ds)}</div>`;
 }
@@ -1226,7 +1232,7 @@ function updateFocusPill(){
 document.addEventListener('visibilitychange', () => { if (!document.hidden && focus) tickFocus(); });
 
 /* ---------- Erinnerungen (Android) ---------- */
-const NOTIF_DEFAULTS = { on: true, events: true, eventMin: 30, allDayTime: '08:00', tasks: true, taskTime: '09:00', pays: true, payTime: '18:00', habits: true, habitTime: '20:00' };
+const NOTIF_DEFAULTS = { on: true, events: true, eventMin: 30, allDayTime: '08:00', tasks: true, taskTime: '09:00', pays: true, payTime: '18:00', habits: true, habitTime: '20:00', shifts: true, shiftMin: 60 };
 const NS = () => ({...NOTIF_DEFAULTS, ...(S().notif || {})});
 const notifId = key => (hashStr(key) % 2000000000) + 1;
 let notifTimer = null;
@@ -1253,6 +1259,8 @@ async function doScheduleNotifications(){
       });
       if (ns.tasks) all('task').filter(t => !t.done && t.due === ds).forEach(t => push('t:' + t.id + ':' + ds, (Q() ? 'Quest fällig: ' : 'Heute fällig: ') + t.title, t.note || (Q() ? `+${taskXP(t)} XP warten auf dich` : 'Tippe, um den Planer zu öffnen'), at(ds, ns.taskTime)));
       if (ns.pays) { const tm = ymd(addDays(parse(ds), 1)); finRowsForDates(tm, tm).filter(r => r.rec && r.type !== 'income').forEach(r => push('p:' + r.id + ':' + tm, 'Morgen wird abgebucht: ' + r.title, eur(r.amount), at(ds, ns.payTime))); }
+      if (ns.shifts) shiftsOn(ds).forEach(s => { if (s.mode === 'fixed' || hm2min(s.start) == null) return; const min = +ns.shiftMin || 0, w = at(ds, s.start); w.setMinutes(w.getMinutes() - min); const mt = shMeta(s);
+        push('s:' + s.id + ':' + ds, mt.name + ' um ' + s.start + ' Uhr', (min ? (min >= 1440 ? 'Morgen' : min >= 60 ? `In ${min / 60} Std.` : `In ${min} Min.`) : 'Jetzt') + ' · bis ' + s.end + ' Uhr', w); });
       if (ns.habits) { const open = all('habit').filter(h => !(h.done && h.done[ds])); if (open.length) push('h:' + ds, open.length === 1 ? 'Routine noch offen: ' + open[0].name : `${open.length} Routinen noch offen`, open.slice(0, 3).map(h => h.name).join(', ') + (open.length > 3 ? ' …' : ''), at(ds, ns.habitTime)); }
     }
     all('recurring').forEach(r => { if (r.cancelBy) push('c:' + r.id + ':' + r.cancelBy, 'Kündigungsfrist: ' + r.name, 'Kündbar bis ' + fmtShort(r.cancelBy) + ' – noch 7 Tage', at(ymd(addDays(parse(r.cancelBy), -7)), '10:00'), 120); });
@@ -1280,6 +1288,7 @@ function notifForm(){
     <div class="nrow"><label class="chkl big"><input type="checkbox" name="on" ${ns.on ? 'checked' : ''}> Erinnerungen einschalten</label></div>
     ${row('events', 'Termine', null, `<select name="eventMin">${mins.map(([v, l]) => `<option value="${v}" ${+ns.eventMin === v ? 'selected' : ''}>${l}</option>`).join('')}</select>`)}
     <div class="nrow sub"><span>Ganztägige Termine um</span><input type="time" name="allDayTime" value="${esc(ns.allDayTime)}"></div>
+    ${row('shifts', 'Schichtbeginn', null, `<select name="shiftMin">${mins.map(([v, l]) => `<option value="${v}" ${+ns.shiftMin === v ? 'selected' : ''}>${l}</option>`).join('')}</select>`)}
     ${row('tasks', 'Fällige Quests / Aufgaben um', 'taskTime')}
     ${row('pays', 'Abbuchungen (am Vortag) um', 'payTime')}
     ${row('habits', 'Offene Routinen um', 'habitTime')}
@@ -1288,7 +1297,7 @@ function notifForm(){
 }
 async function saveNotif(form){
   const fd = new FormData(form), g = k => (fd.get(k) || '').toString(), c = k => fd.get(k) === 'on';
-  const notif = { on: c('on'), events: c('events'), eventMin: +g('eventMin') || 0, allDayTime: g('allDayTime') || '08:00', tasks: c('tasks'), taskTime: g('taskTime') || '09:00', pays: c('pays'), payTime: g('payTime') || '18:00', habits: c('habits'), habitTime: g('habitTime') || '20:00' };
+  const notif = { on: c('on'), events: c('events'), eventMin: +g('eventMin') || 0, allDayTime: g('allDayTime') || '08:00', tasks: c('tasks'), taskTime: g('taskTime') || '09:00', pays: c('pays'), payTime: g('payTime') || '18:00', habits: c('habits'), habitTime: g('habitTime') || '20:00', shifts: c('shifts'), shiftMin: +g('shiftMin') || 0 };
   setSetting({notif}); closeModal(); render();
   if (IS_NATIVE && notif.on) { const ok = await askNotifPermission(); if (!ok) { toast('Bitte Benachrichtigungen in den Android-Einstellungen erlauben'); return; } }
   scheduleNotifications(); toast('Erinnerungen gespeichert');
@@ -1296,6 +1305,327 @@ async function saveNotif(form){
 async function testNotif(){
   if (!(await askNotifPermission())) { toast('Benachrichtigungen sind nicht erlaubt'); return; }
   try { await LocalNotifications.schedule({notifications: [{id: notifId('test' + Date.now()), title: 'Lebensplaner', body: 'So sehen deine Erinnerungen aus. 👍', schedule: {at: new Date(Date.now() + 5000), allowWhileIdle: true}, smallIcon: 'ic_stat_lebensplaner', iconColor: '#F2B544'}]}); toast('Test kommt in 5 Sekunden'); } catch(e) { toast('Konnte keine Erinnerung planen'); }
+}
+
+/* ---------- Schichten (Schichtdienst) ---------- */
+const SH_COLORS = ['#ffd36b','#ff9f5a','#8fb8ff','#b79cff','#6fd39a','#ff6b7f','#6fe0d0','#e2a5ff','#b9ab92'];
+const SH_DEFAULT_TYPES = [
+  {id:'frueh', name:'Frühschicht', short:'F', mode:'time', start:'06:00', end:'14:00', pause:30, color:'#ffd36b'},
+  {id:'spaet', name:'Spätschicht', short:'S', mode:'time', start:'14:00', end:'22:00', pause:30, color:'#ff9f5a'},
+  {id:'nacht', name:'Nachtschicht', short:'N', mode:'time', start:'22:00', end:'06:00', pause:30, color:'#8fb8ff'},
+  {id:'urlaub', name:'Urlaub', short:'U', mode:'fixed', hours:8, color:'#6fd39a'},
+  {id:'krank', name:'Krank', short:'K', mode:'fixed', hours:8, color:'#ff6b7f'}
+];
+const shTypes = () => Array.isArray(S().shiftTypes) ? S().shiftTypes : SH_DEFAULT_TYPES;
+const shType = id => shTypes().find(t => t.id === id);
+const SHS = () => ({soll: 0, wage: 0, onToday: true, ...(S().shiftCfg || {})});
+const hm2min = s => { const m = String(s || '').match(/^(\d{1,2}):(\d{2})/); return m ? (+m[1]) * 60 + (+m[2]) : null; };
+function spanMin(start, end){ const a = hm2min(start), b = hm2min(end); if (a == null || b == null) return 0; let d = b - a; if (d <= 0) d += 1440; return d; }
+function shiftHours(s){
+  if (!s) return 0;
+  if (s.mode === 'fixed') return Math.max(0, +s.hours || 0);
+  return Math.max(0, spanMin(s.start, s.end) - (+s.pause || 0)) / 60;
+}
+const numStr = n => (Math.round((+n || 0) * 100) / 100).toLocaleString(LOCALE, {maximumFractionDigits: 2});
+const fmtH = h => numStr(h) + ' Std.';
+const sgnH = h => (Math.round(h * 100) / 100 >= 0 ? '+' : '−') + fmtH(Math.abs(h));
+const shMeta = s => { const t = shType(s.type); return {name: t ? t.name : (s.tname || 'Schicht'), short: t ? t.short : (s.tshort || '?'), color: t ? t.color : (s.tcolor || '#b9ab92')}; };
+const shSort = (a, b) => a.date.localeCompare(b.date) || (hm2min(a.start) ?? 9999) - (hm2min(b.start) ?? 9999);
+const shiftsOn = ds => all('shift').filter(s => s.date === ds).sort(shSort);
+const shiftsIn = (from, to) => all('shift').filter(s => s.date >= from && s.date <= to).sort(shSort);
+const monthRange = (y, m) => [`${y}-${pad(m + 1)}-01`, `${y}-${pad(m + 1)}-${pad(daysInMonth(y, m))}`];
+const shStart = s => { const d = parse(s.date), m = hm2min(s.start) || 0; d.setHours(Math.floor(m / 60), m % 60, 0, 0); return d; };
+const shEnd = s => new Date(shStart(s).getTime() + spanMin(s.start, s.end) * 60000);
+const shTimeLabel = s => s.mode === 'fixed' ? fmtH(shiftHours(s)) : `${esc(s.start)}–${esc(s.end)}`;
+const shBadge = (mt, cls = '') => `<span class="shbadge ${cls}" style="--sc:${mt.color}">${esc(mt.short)}</span>`;
+function shiftStats(list){
+  const by = {}; let hours = 0, work = 0, count = 0;
+  list.forEach(s => {
+    const h = shiftHours(s), k = s.type || ('?' + (s.tname || ''));
+    hours += h; if (s.mode !== 'fixed') { work += h; count++; }
+    (by[k] = by[k] || {n: 0, h: 0, s}).n++; by[k].h += h;
+  });
+  return {hours, work, count, by, n: list.length};
+}
+function shFromType(t, ds){
+  if (!t) return {date: ds, type: '', mode: 'time', start: '08:00', end: '16:00', pause: 30, tname: 'Schicht', tshort: '?', tcolor: '#b9ab92'};
+  const base = {date: ds, type: t.id, tname: t.name, tshort: t.short, tcolor: t.color};
+  return t.mode === 'fixed' ? {...base, mode: 'fixed', hours: +t.hours || 0, start: '', end: '', pause: 0} : {...base, mode: 'time', start: t.start, end: t.end, pause: +t.pause || 0};
+}
+
+/* Übersicht im Schicht-Bereich */
+function shStatTiles(list){
+  return `<div class="fin-stats shstats">${list.map(([l, v, c]) => `<div><span>${l}</span><b class="${c || ''}">${v}</b></div>`).join('')}</div>`;
+}
+function shBreakdown(st){
+  const rows = Object.values(st.by).sort((a, b) => b.h - a.h || b.n - a.n);
+  if (!rows.length) return '<div class="empty">Noch keine Schichten in diesem Zeitraum.</div>';
+  return `<div class="list">${rows.map(v => { const mt = shMeta(v.s); return `<div class="item shrow">${shBadge(mt)}<div class="grow"><div class="t">${esc(mt.name)}</div><div class="s">${v.n}×</div></div><div class="famt">${fmtH(v.h)}</div></div>`; }).join('')}</div>
+    <div class="fin-sum">Gesamt: ${fmtH(st.hours)}${Math.abs(st.work - st.hours) > 0.001 ? ` · davon gearbeitet ${fmtH(st.work)}` : ''}</div>`;
+}
+function shHead(title, attr, isNow){
+  const q = Q();
+  return `<div class="fin-month"><h2>${q ? QI.schichten + '<span>' + title + '</span>' : '🕒 ' + title}</h2>
+    <div class="row"><button class="btn icon" ${attr}="-1" aria-label="zurück">‹</button>${isNow ? '' : `<button class="btn" ${attr}="0">Heute</button>`}<button class="btn icon" ${attr}="1" aria-label="weiter">›</button></div></div>`;
+}
+const shSwitch = () => `<div class="tabs-sub shsw">${[['month','Monat'],['year','Jahr']].map(([k, l]) => `<button data-shview="${k}" class="${(ui.shView || 'month') === k ? 'on' : ''}">${l}</button>`).join('')}<button class="shset-btn" data-shset>${Q() ? QI.design : '⚙️'} Schichtarten & Soll</button></div>`;
+
+function viewShifts(){
+  if (!ui.shMonth) { const d = new Date(); ui.shMonth = [d.getFullYear(), d.getMonth()]; }
+  if (!ui.shYear) ui.shYear = new Date().getFullYear();
+  return (ui.shView || 'month') === 'year' ? shYearView() : shMonthView();
+}
+function shMonthView(){
+  const [y, m] = ui.shMonth, td = today(), cfg = SHS(), paint = ui.shPaint || '';
+  const [from, to] = monthRange(y, m), list = shiftsIn(from, to), st = shiftStats(list);
+  const isNow = td >= from && td <= to;
+  const tiles = [['Stunden gesamt', fmtH(st.hours)], ['Schichten', String(st.count)]];
+  if (cfg.soll > 0) { const d = st.hours - cfg.soll; tiles.push(['Saldo · Soll ' + fmtH(cfg.soll), sgnH(d), d >= 0 ? 'pos' : 'neg']); }
+  else tiles.push(['Ø pro Schicht', st.count ? fmtH(st.work / st.count) : '–']);
+  if (isNow) tiles.push(['Bis heute', fmtH(shiftStats(list.filter(s => s.date <= td)).hours)]);
+  if (cfg.wage > 0) tiles.push(['≈ Brutto', eur(st.hours * cfg.wage), 'pos']);
+  const pt = paint && paint !== '__del' ? shType(paint) : null;
+  const chips = shTypes().map(t => `<button type="button" data-shpaint="${esc(t.id)}" class="shchip ${paint === t.id ? 'on' : ''}" style="--sc:${t.color}"><b>${esc(t.short)}</b><span>${esc(t.name)}</span></button>`).join('')
+    + `<button type="button" data-shpaint="__del" class="shchip del ${paint === '__del' ? 'on' : ''}"><b>×</b><span>Entfernen</span></button>`;
+  const hint = pt ? `<span>Tippe auf die Tage, um „${esc(pt.name)}“ einzutragen.</span> <span>Zum Beenden den Knopf nochmal antippen.</span>`
+    : paint === '__del' ? '<span>Tippe auf einen Tag, um seine Schicht zu entfernen.</span>'
+    : '<span>Tipp: Wähle eine Schicht und tippe dann auf die Tage – so ist dein Dienstplan in Sekunden eingetragen.</span>';
+  const first = new Date(y, m, 1), start = addDays(first, -((first.getDay() + 6) % 7));
+  let cells = WD.map(w => `<div class="wd">${w}</div>`).join('');
+  for (let i = 0; i < 42; i++) {
+    const d = addDays(start, i), ds = ymd(d);
+    if (i >= 35 && d.getMonth() !== m) break;
+    cells += `<div class="day shday ${d.getMonth() !== m ? 'out' : ''} ${ds === td ? 'today' : ''}" data-shday="${ds}"><div class="n">${d.getDate()}</div>${shiftsOn(ds).map(s => { const mt = shMeta(s); return `<div class="shtag" style="--sc:${mt.color}" ${paint ? '' : `data-edit="${s.id}"`}><b>${esc(mt.short)}</b><span>${numStr(shiftHours(s))}h</span></div>`; }).join('')}</div>`;
+  }
+  return `<div class="card tape t-butter fin-head" style="margin-top:12px">${shSwitch()}
+      ${shHead(`${MONTHS[m]} ${y}`, 'data-shm', isNow)}
+      ${shStatTiles(tiles)}
+      <div class="fin-actions"><button class="btn primary" data-new="shift" data-date="${isNow ? td : from}">+ Schicht</button><button class="btn" data-shcopy>Monat kopieren</button></div>
+    </div>
+    <div class="card tape t-sky shplan ${paint ? 'painting' : ''}" style="margin-top:22px">
+      <div class="sec-h"><h2>${FH('schichten', '🗓️', 'Dienstplan')}</h2></div>
+      <div class="shchips">${chips}</div>
+      <div class="hint shhint">${hint}</div>
+      <div class="cal shcal">${cells}</div>
+    </div>
+    <div class="grid g2" style="margin-top:22px">
+      <div class="card tape t-peach"><div class="sec-h"><h2>${FH('chart', '📊', 'Aufteilung')}</h2></div>${shBreakdown(st)}</div>
+      <div class="card tape t-lav"><div class="sec-h"><h2>${FH('kalender', '📋', 'Alle Schichten')}</h2></div>
+        <div class="list">${list.length ? list.map(shiftRow).join('') : '<div class="empty">In diesem Monat ist noch nichts eingetragen.</div>'}</div></div>
+    </div>`;
+}
+function shiftRow(s){
+  const mt = shMeta(s), d = parse(s.date);
+  return `<div class="item shrow" data-edit="${s.id}"><div class="time shd"><span>${WD[(d.getDay() + 6) % 7]}</span>${d.toLocaleDateString(LOCALE, {day:'2-digit', month:'2-digit'})}</div>${shBadge(mt)}
+    <div class="grow"><div class="t">${esc(mt.name)}</div><div class="s">${s.mode === 'fixed' ? 'feste Stunden' : `${esc(s.start)}–${esc(s.end)}${+s.pause ? ` · ${+s.pause} Min. Pause` : ''}`}${s.note ? ' · ' + esc(s.note) : ''}</div></div>
+    <div class="famt">${fmtH(shiftHours(s))}</div></div>`;
+}
+function shYearView(){
+  const y = ui.shYear, cfg = SHS(), now = new Date(), cy = now.getFullYear();
+  const months = [...Array(12)].map((_, m) => { const [a, b] = monthRange(y, m); return {m, st: shiftStats(shiftsIn(a, b))}; });
+  const st = shiftStats(shiftsIn(`${y}-01-01`, `${y}-12-31`));
+  // Soll zählt erst ab dem ersten Monat mit eingetragenen Schichten (sonst stünden vor dem App-Start lauter Minusstunden)
+  const lastM = y < cy ? 11 : y === cy ? now.getMonth() : -1, firstM = months.findIndex(x => x.st.n > 0);
+  const sollOn = m => cfg.soll > 0 && firstM >= 0 && m >= firstM && m <= lastM;
+  const tiles = [['Stunden gesamt', fmtH(st.hours)], ['Schichten', String(st.count)]];
+  if (cfg.soll > 0 && firstM >= 0 && firstM <= lastM) {
+    const d = months.filter(x => sollOn(x.m)).reduce((s, x) => s + x.st.hours - cfg.soll, 0);
+    tiles.push([firstM < lastM ? `Saldo ${MONTHS[firstM]}–${MONTHS[lastM]}` : `Saldo ${MONTHS[lastM]}`, sgnH(d), d >= 0 ? 'pos' : 'neg']);
+  }
+  const used = months.filter(x => x.st.n).length;
+  tiles.push(['Ø pro Monat', used ? fmtH(st.hours / used) : '–']);
+  if (cfg.wage > 0) tiles.push(['≈ Brutto', eur(st.hours * cfg.wage), 'pos']);
+  const maxH = Math.max(1, cfg.soll || 0, ...months.map(x => x.st.hours));
+  const rows = months.map(x => { const cur = y === cy && x.m === now.getMonth(), d = x.st.hours - cfg.soll;
+    return `<div class="shyr ${cur ? 'cur' : ''} ${x.st.n ? '' : 'empty-m'}" data-shmonth="${y}-${x.m}">
+      <span class="shyr-m">${MONTHS[x.m]}</span>
+      <div class="cbar-track"><i class="cbar-fill tot" style="width:${(x.st.hours / maxH * 100).toFixed(1)}%"></i>${cfg.soll > 0 ? `<i class="cbar-limit" style="left:${(cfg.soll / maxH * 100).toFixed(1)}%"></i>` : ''}</div>
+      <span class="shyr-n">${x.st.count}×</span><b>${fmtH(x.st.hours)}</b>
+      ${sollOn(x.m) ? `<small class="${d >= 0 ? 'pos' : 'neg'}">${sgnH(d)}</small>` : '<small></small>'}</div>`; }).join('');
+  return `<div class="card tape t-butter fin-head" style="margin-top:12px">${shSwitch()}
+      ${shHead(`Jahr ${y}`, 'data-shy', y === cy)}
+      ${shStatTiles(tiles)}
+      <div class="fin-actions"><button class="btn" data-shcopy>Jahr kopieren</button></div>
+    </div>
+    <div class="grid g2" style="margin-top:22px">
+      <div class="card tape t-sky"><div class="sec-h"><h2>${FH('chart', '📊', 'Monate')}</h2>${cfg.soll > 0 ? `<span class="pill">Soll ${fmtH(cfg.soll)}</span>` : ''}</div><div class="shyears">${rows}</div>
+        <div class="fin-sum">Gesamt ${y}: ${fmtH(st.hours)} · ${st.count} Schichten</div></div>
+      <div class="card tape t-peach"><div class="sec-h"><h2>${FH('schichten', '🕒', 'Schichtarten')}</h2></div>${shBreakdown(st)}</div>
+    </div>`;
+}
+
+/* Text zum Kopieren (Stundenzettel) */
+function shSummaryText(){
+  const L = x => LANG === 'en' ? trStr(String(x)) : String(x), cfg = SHS();
+  const out = [];
+  const typeLines = st => Object.values(st.by).sort((a, b) => b.h - a.h).map(v => `${L(shMeta(v.s).name)}: ${v.n}× · ${L(fmtH(v.h))}`);
+  if ((ui.shView || 'month') === 'year') {
+    const y = ui.shYear, st = shiftStats(shiftsIn(`${y}-01-01`, `${y}-12-31`));
+    out.push(L(`Schichten ${y}`), '');
+    for (let m = 0; m < 12; m++) { const [a, b] = monthRange(y, m), ms = shiftStats(shiftsIn(a, b)); if (ms.n) out.push(`${MONTHS[m]}: ${L(fmtH(ms.hours))} (${ms.count}×)`); }
+    out.push('', L(`Gesamt: ${fmtH(st.hours)}`), ...typeLines(st));
+  } else {
+    const [y, m] = ui.shMonth, [a, b] = monthRange(y, m), list = shiftsIn(a, b), st = shiftStats(list);
+    out.push(`${L('Schichten')} ${MONTHS[m]} ${y}`, '');
+    list.forEach(s => { const d = parse(s.date); out.push(`${WD[(d.getDay() + 6) % 7]} ${d.toLocaleDateString(LOCALE, {day:'2-digit', month:'2-digit'})}  ${L(shMeta(s).name)}  ${s.mode === 'fixed' ? '' : `${s.start}–${s.end}${+s.pause ? ` (${L(`${+s.pause} Min. Pause`)})` : ''}  `}${L(fmtH(shiftHours(s)))}${s.note ? '  · ' + s.note : ''}`); });
+    out.push('', L(`Gesamt: ${fmtH(st.hours)}`), ...typeLines(st));
+    if (cfg.soll > 0) out.push(L(`Soll: ${fmtH(cfg.soll)}`), L(`Saldo: ${sgnH(st.hours - cfg.soll)}`));
+  }
+  return out.join('\n');
+}
+
+/* Schnell eintragen (Pinsel) */
+function paintDay(ds){
+  const p = ui.shPaint, ex = shiftsOn(ds);
+  if (p === '__del') { if (!ex.length) return; ex.forEach(s => items.delete(s.id)); render(); bulkWrite(ex, true).catch(() => {}); return; }
+  const t = shType(p); if (!t) return;
+  if (ex.length === 1 && ex[0].type === p) { items.delete(ex[0].id); render(); persist(ex[0], true); return; }
+  const nw = {...shFromType(t, ds), id: newId('sh'), kind: 'shift', created: Date.now()};
+  ex.forEach(s => items.delete(s.id)); items.set(nw.id, nw); render();
+  if (ex.length) bulkWrite(ex, true).catch(() => {});
+  persist(nw);
+}
+
+/* Formular: Schicht */
+function shTimeFields(c){
+  if (c.mode === 'fixed') return `<input type="hidden" name="mode" value="fixed"><label>Stunden</label><input type="text" name="hours" inputmode="decimal" autocomplete="off" value="${esc(numStr(c.hours))}" placeholder="8"><div class="shcalc" id="shCalc"></div>`;
+  return `<input type="hidden" name="mode" value="time"><div class="f3"><div><label>Von</label><input type="time" name="start" value="${esc(c.start)}"></div><div><label>Bis</label><input type="time" name="end" value="${esc(c.end)}"></div><div><label>Pause (Min.)</label><input type="number" name="pause" min="0" step="5" inputmode="numeric" value="${esc(+c.pause || 0)}"></div></div><div class="shcalc" id="shCalc">${shCalcText(c)}</div>`;
+}
+function shCalcText(c){
+  if (c.mode === 'fixed') return '';
+  if (hm2min(c.start) == null || hm2min(c.end) == null) return '';
+  const night = hm2min(c.end) <= hm2min(c.start);
+  return `<b>= ${fmtH(shiftHours(c))}</b>${night ? ' <span>(endet am nächsten Tag)</span>' : ''}`;
+}
+function updateShCalc(){
+  const f = $('#shiftForm'), out = $('#shCalc'); if (!f || !out) return; const el = f.elements; if (!el.start) return;
+  out.innerHTML = shCalcText({mode: 'time', start: el.start.value, end: el.end.value, pause: el.pause.value});
+}
+function shiftForm(it, date){
+  const types = shTypes(), t0 = it ? shType(it.type) : types[0];
+  editing = {kind: 'shift', id: it ? it.id : null, stype: it ? (it.type || '') : (t0 ? t0.id : ''), confirmDel: false};
+  const cur = it || shFromType(t0, date || today());
+  const ttl = it ? 'Schicht bearbeiten' : 'Schicht eintragen';
+  const del = it ? '<button type="button" class="btn danger" id="delBtn">Löschen</button>' : '<span></span>';
+  return `<form id="shiftForm"><h2>${Q() ? QI.schichten + `<span>${ttl}</span>` : '🕒 ' + ttl}</h2>
+    <label>Schicht</label><div class="cats shtypes">${types.map(t => `<button type="button" data-shtype="${esc(t.id)}" class="${editing.stype === t.id ? 'on' : ''}">${shBadge(t)}${esc(t.name)}</button>`).join('')}</div>
+    <label>Datum</label><input type="date" name="date" required value="${esc(cur.date || date || today())}">
+    <div id="shTimes">${shTimeFields(cur)}</div>
+    <label>Notiz (optional)</label><input type="text" name="note" value="${esc(it?.note)}" placeholder="z. B. Vertretung, Station 3">
+    ${it ? `<div style="margin-top:10px"><button type="button" class="btn" data-new="shift" data-date="${esc(it.date)}">+ Weitere Schicht am selben Tag</button></div>` : ''}
+    <div class="actions">${del}<div class="row"><button type="button" class="btn" data-close>Abbrechen</button><button class="btn primary">Speichern</button></div></div></form>`;
+}
+function pickShiftType(id){
+  const t = shType(id); if (!t || !editing) return;
+  editing.stype = id;
+  document.querySelectorAll('.shtypes button').forEach(b => b.classList.toggle('on', b.dataset.shtype === id));
+  const f = $('#shiftForm'); $('#shTimes').innerHTML = shTimeFields(shFromType(t, f.elements.date.value));
+}
+function saveShift(fd){
+  const g = k => (fd.get(k) || '').toString().trim();
+  const t = shType(editing.stype), old = editing.id ? items.get(editing.id) : null;
+  const base = old ? {...old} : {id: newId('sh'), kind: 'shift', created: Date.now()};
+  const mode = g('mode') === 'fixed' ? 'fixed' : 'time';
+  Object.assign(base, {date: g('date') || today(), type: editing.stype || '', mode, note: g('note'),
+    tname: t ? t.name : (base.tname || 'Schicht'), tshort: t ? t.short : (base.tshort || '?'), tcolor: t ? t.color : (base.tcolor || '#b9ab92')});
+  if (mode === 'fixed') { const h = parseAmt(g('hours')); Object.assign(base, {hours: h > 0 ? h : 0, start: '', end: '', pause: 0}); }
+  else {
+    if (hm2min(g('start')) == null || hm2min(g('end')) == null) { toast('Bitte Beginn und Ende eintragen'); return; }
+    Object.assign(base, {start: g('start'), end: g('end'), pause: Math.max(0, parseInt(g('pause'), 10) || 0)}); delete base.hours;
+  }
+  closeModal(); put(base); toast(old ? 'Gespeichert' : 'Schicht eingetragen');
+}
+
+/* Einstellungen: Schichtarten, Soll, Lohn */
+let shDraft = null;
+function shSettings(){
+  editing = {kind: 'shset'};
+  const cfg = SHS(), d = shDraft || {}, types = shTypes();
+  const soll = d.soll !== undefined ? d.soll : (cfg.soll ? numStr(cfg.soll) : '');
+  const wage = d.wage !== undefined ? d.wage : (cfg.wage ? numDE(cfg.wage) : '');
+  const onT = d.soll !== undefined ? d.onToday === 'on' : cfg.onToday;
+  return `<form id="shSetForm"><h2>${Q() ? QI.schichten + '<span>Schichtarten & Soll</span>' : '🕒 Schichtarten & Soll'}</h2>
+    <label>Deine Schichtarten</label>
+    <div class="list">${types.length ? types.map(t => `<div class="item shrow" data-shtedit="${esc(t.id)}">${shBadge(t)}<div class="grow"><div class="t">${esc(t.name)}</div><div class="s">${t.mode === 'fixed' ? `${fmtH(+t.hours || 0)} · feste Stunden` : `${esc(t.start)}–${esc(t.end)} · ${+t.pause || 0} Min. Pause · ${fmtH(shiftHours(t))}`}</div></div><span class="pill">›</span></div>`).join('') : '<div class="empty">Noch keine Schichtarten.</div>'}</div>
+    <div class="row" style="margin-top:8px"><button type="button" class="btn" data-shtedit="__new">+ Neue Schichtart</button></div>
+    <div class="f2"><div><label>Soll-Stunden pro Monat</label><input type="text" name="soll" inputmode="decimal" autocomplete="off" value="${esc(soll)}" placeholder="z. B. 160"></div>
+      <div><label>Stundenlohn € (optional)</label><input type="text" name="wage" inputmode="decimal" autocomplete="off" value="${esc(wage)}" placeholder="z. B. 15,50"></div></div>
+    <div class="nrow"><label class="chkl"><input type="checkbox" name="onToday" ${onT ? 'checked' : ''}> Schicht-Karte auf der Übersicht zeigen</label></div>
+    <p class="hint">Mit Soll-Stunden siehst du Über- und Minusstunden für jeden Monat und fürs Jahr. Mit Stundenlohn zeigt die App einen ungefähren Brutto-Verdienst (ohne Zuschläge).</p>
+    <div class="actions"><span></span><div class="row"><button type="button" class="btn" data-close>Abbrechen</button><button class="btn primary">Speichern</button></div></div></form>`;
+}
+function saveShSettings(fd){
+  const g = k => (fd.get(k) || '').toString().trim();
+  const soll = parseAmt(g('soll')), wage = parseAmt(g('wage'));
+  setSetting({shiftCfg: {soll: soll > 0 ? soll : 0, wage: wage > 0 ? wage : 0, onToday: fd.get('onToday') === 'on'}});
+  shDraft = null; closeModal(); render(); toast('Gespeichert');
+}
+function shTypeTimeFields(t){
+  return editing.tmode === 'fixed'
+    ? `<label>Stunden pro Tag</label><input type="text" name="hours" inputmode="decimal" autocomplete="off" value="${t && t.mode === 'fixed' ? esc(numStr(t.hours)) : '8'}">`
+    : `<div class="f3"><div><label>Von</label><input type="time" name="start" value="${esc(t && t.mode !== 'fixed' ? t.start : '08:00')}"></div><div><label>Bis</label><input type="time" name="end" value="${esc(t && t.mode !== 'fixed' ? t.end : '16:00')}"></div><div><label>Pause (Min.)</label><input type="number" name="pause" min="0" step="5" inputmode="numeric" value="${esc(t && t.mode !== 'fixed' ? (+t.pause || 0) : 30)}"></div></div>`;
+}
+function shTypeForm(id){
+  const t = id && id !== '__new' ? shType(id) : null;
+  editing = {kind: 'shtype', id: t ? t.id : null, color: t ? t.color : SH_COLORS[shTypes().length % SH_COLORS.length], tmode: t ? (t.mode || 'time') : 'time', confirmDel: false};
+  const ttl = t ? 'Schichtart bearbeiten' : 'Neue Schichtart';
+  return `<form id="shTypeForm"><h2>${Q() ? QI.schichten + `<span>${ttl}</span>` : '🕒 ' + ttl}</h2>
+    <div class="f2 shname"><div><label>Name</label><input type="text" name="name" required value="${esc(t?.name)}" placeholder="z. B. Frühschicht, Bereitschaft"></div>
+      <div><label>Kürzel</label><input type="text" name="short" maxlength="3" required value="${esc(t?.short)}" placeholder="F"></div></div>
+    <label>Farbe</label><div class="swatches">${SH_COLORS.map(c => `<button type="button" data-shcolor="${c}" class="${editing.color === c ? 'on' : ''}" style="--sc:${c}" aria-label="Farbe"></button>`).join('')}</div>
+    <label>Art</label><div class="tabs-sub shmode"><button type="button" data-shmode="time" class="${editing.tmode === 'time' ? 'on' : ''}">Mit Uhrzeit</button><button type="button" data-shmode="fixed" class="${editing.tmode === 'fixed' ? 'on' : ''}">Feste Stunden (z. B. Urlaub)</button></div>
+    <div id="shTypeTimes">${shTypeTimeFields(t)}</div>
+    <div class="actions">${t ? '<button type="button" class="btn danger" data-shtdel>Löschen</button>' : '<span></span>'}<div class="row"><button type="button" class="btn" data-shset-back>Zurück</button><button class="btn primary">Speichern</button></div></div></form>`;
+}
+function saveShType(fd){
+  const g = k => (fd.get(k) || '').toString().trim();
+  const name = g('name'), short = g('short').slice(0, 3);
+  if (!name || !short) { toast('Bitte Name und Kürzel eingeben'); return; }
+  const t = {id: editing.id || newId('st'), name, short, color: editing.color, mode: editing.tmode};
+  if (t.mode === 'fixed') { const h = parseAmt(g('hours')); t.hours = h > 0 ? h : 0; }
+  else { if (hm2min(g('start')) == null || hm2min(g('end')) == null) { toast('Bitte Beginn und Ende eintragen'); return; } Object.assign(t, {start: g('start'), end: g('end'), pause: Math.max(0, parseInt(g('pause'), 10) || 0)}); }
+  const list = shTypes().map(x => ({...x}));
+  const i = list.findIndex(x => x.id === t.id); if (i >= 0) list[i] = t; else list.push(t);
+  setSetting({shiftTypes: list}); render(); openModal(shSettings()); toast('Schichtart gespeichert');
+}
+function deleteShType(btn){
+  if (!editing.confirmDel) { editing.confirmDel = true; btn.textContent = 'Wirklich löschen?'; return; }
+  setSetting({shiftTypes: shTypes().filter(x => x.id !== editing.id)}); render(); openModal(shSettings()); toast('Schichtart gelöscht');
+}
+
+/* Karte auf der Übersicht */
+function shiftTodayCard(){
+  const cfg = SHS(); if (!cfg.onToday) return '';
+  const now = new Date(), td = today(), q = Q(), any = all('shift').length > 0;
+  const todays = shiftsOn(td);
+  const running = [...shiftsOn(ymd(addDays(now, -1))), ...todays].find(s => s.mode !== 'fixed' && hm2min(s.start) != null && now >= shStart(s) && now < shEnd(s));
+  let head;
+  if (running) { const mt = shMeta(running); head = `${shBadge(mt, 'big')}<div class="grow"><div class="t">${esc(mt.name)} läuft</div><div class="s">${shTimeLabel(running)} · noch ${fmtH((shEnd(running) - now) / 36e5)}</div></div>`; }
+  else if (todays.length) { const s = todays[0], mt = shMeta(s); head = `${shBadge(mt, 'big')}<div class="grow"><div class="t">Heute: ${esc(mt.name)}</div><div class="s">${shTimeLabel(s)}${s.mode === 'fixed' ? '' : ' · ' + fmtH(shiftHours(s))}${todays.length > 1 ? ` · +${todays.length - 1} weitere` : ''}</div></div>`; }
+  else { const nx = all('shift').filter(s => s.date > td).sort(shSort)[0];
+    head = `<span class="shbadge big free">–</span><div class="grow"><div class="t">Heute frei</div><div class="s">${nx ? `Nächste Schicht: ${fmtShort(nx.date)} · ${esc(shMeta(nx).name)}${nx.start ? ' · ' + esc(nx.start) : ''}` : 'Trag deinen Dienstplan ein – die Stunden werden automatisch für Monat und Jahr zusammengerechnet.'}</div></div>`; }
+  const [a, b] = monthRange(now.getFullYear(), now.getMonth());
+  const ms = shiftStats(shiftsIn(a, b)), ys = shiftStats(shiftsIn(`${now.getFullYear()}-01-01`, `${now.getFullYear()}-12-31`));
+  const strip = [...Array(7)].map((_, i) => { const ds = ymd(addDays(now, i)), d = parse(ds), ss = shiftsOn(ds);
+    return `<button class="shs ${ds === td ? 'today' : ''}" data-shopen="${ds}"><span>${WD[(d.getDay() + 6) % 7]}</span><b>${d.getDate()}</b>${ss.length ? ss.slice(0, 2).map(s => { const mt = shMeta(s); return `<i style="--sc:${mt.color}">${esc(mt.short)}</i>`; }).join('') : '<i class="free">–</i>'}</button>`; }).join('');
+  return `<div class="card tape t-butter shcard">
+    <div class="sec-h"><h2>${FH('schichten', '🕒', 'Schichten')}</h2><div class="row"><button class="btn" data-new="shift" data-date="${td}">+ Schicht</button><button class="btn" data-tab="schichten">Öffnen</button></div></div>
+    <div class="item shnow" ${running || todays.length ? `data-edit="${(running || todays[0]).id}"` : `data-tab="schichten"`}>${head}</div>
+    ${any ? `<div class="shstrip">${strip}</div>` : ''}
+    <div class="fin-mini"><div><span>${MONTHS[now.getMonth()]}</span><b>${fmtH(ms.hours)}</b></div>${cfg.soll > 0 ? `<div><span>Saldo Monat</span><b class="${ms.hours - cfg.soll >= 0 ? 'pos' : 'neg'}">${sgnH(ms.hours - cfg.soll)}</b></div>` : `<div><span>Schichten</span><b>${ms.count}</b></div>`}<div><span>Jahr ${now.getFullYear()}</span><b>${fmtH(ys.hours)}</b></div></div>
+  </div>`;
+}
+
+/* Kalender-Anzeige */
+function shiftDayList(ds){
+  const ss = shiftsOn(ds);
+  return ss.length ? `<div class="list shdaylist">${ss.map(s => { const mt = shMeta(s); return `<div class="item shrow" data-edit="${s.id}">${shBadge(mt)}<div class="grow"><div class="t">${esc(mt.name)}</div><div class="s">${shTimeLabel(s)}${s.mode === 'fixed' ? '' : ' · ' + fmtH(shiftHours(s))}</div></div></div>`; }).join('')}</div>` : '';
+}
+function shiftBands(ds){
+  const segs = [];
+  shiftsOn(ds).forEach(s => { if (s.mode === 'fixed' || hm2min(s.start) == null) return; const a = hm2min(s.start); segs.push({s, a, b: Math.min(1440, a + spanMin(s.start, s.end))}); });
+  shiftsOn(ymd(addDays(parse(ds), -1))).forEach(s => { if (s.mode === 'fixed' || hm2min(s.start) == null) return; const e = hm2min(s.start) + spanMin(s.start, s.end); if (e > 1440) segs.push({s, a: 0, b: e - 1440}); });
+  return segs.map(g => { const mt = shMeta(g.s); return `<div class="tshift" data-edit="${g.s.id}" style="top:${g.a / 60 * HH}px;height:${Math.max(16, (g.b - g.a) / 60 * HH)}px;--sc:${mt.color}"><span>${esc(mt.name)} · ${esc(g.s.start)}–${esc(g.s.end)}</span></div>`; }).join('');
 }
 
 /* ---------- Nach jedem Rendern ---------- */
@@ -1457,9 +1787,40 @@ const D = {
   'Quest-Modus ⚔️':'Quest mode ⚔️','Pastell 🌸':'Pastel 🌸','Gold':'Gold','Smaragd':'Emerald','Rubin':'Ruby',
   'Traum ✨':'Dream ✨','Wolken ☁️':'Clouds ☁️','Blümchen 🌼':'Flowers 🌼','Vichy-Karo 🎀':'Gingham 🎀','Herzen 💗':'Hearts 💗','Salbei 🌿':'Sage 🌿','Punktpapier 📓':'Dot grid 📓',
   'Konto & Sync':'Account & sync','Konto, Sync & Daten':'Account, sync & data','Design & Hintergrund':'Design & background','Design wählen':'Choose design','Profil, Shop & Erfolge':'Profile, shop & achievements',
-  'erledigt':'done','voriger Monat':'previous month','nächster Monat':'next month','vorige Woche':'previous week','nächste Woche':'next week','voriger Tag':'previous day','nächster Tag':'next day','Termin hinzufügen':'Add event','entfernen':'remove'
+  'erledigt':'done','voriger Monat':'previous month','nächster Monat':'next month','vorige Woche':'previous week','nächste Woche':'next week','voriger Tag':'previous day','nächster Tag':'next day','Termin hinzufügen':'Add event','entfernen':'remove',
+  // Schichten
+  'Schichten':'Shifts','Dienstplan':'Roster','Aufteilung':'Breakdown','Alle Schichten':'All shifts','Monate':'Months','Schichtarten':'Shift types','Jahr':'Year',
+  'Schichtarten & Soll':'Shift types & target','Stunden gesamt':'Total hours','Ø pro Schicht':'Avg. per shift','Bis heute':'Up to today','≈ Brutto':'≈ Gross','Ø pro Monat':'Avg. per month',
+  '+ Schicht':'+ Shift','Monat kopieren':'Copy month','Jahr kopieren':'Copy year','Entfernen':'Remove','Saldo':'Balance','Saldo Monat':'Month balance','Stunden':'Hours','Schicht':'Shift',
+  'Tippe auf einen Tag, um seine Schicht zu entfernen.':'Tap a day to remove its shift.','Zum Beenden den Knopf nochmal antippen.':'Tap the button again to finish.',
+  'Tipp: Wähle eine Schicht und tippe dann auf die Tage – so ist dein Dienstplan in Sekunden eingetragen.':'Tip: pick a shift, then tap the days – your roster is entered in seconds.',
+  'Noch keine Schichten in diesem Zeitraum.':'No shifts in this period yet.','In diesem Monat ist noch nichts eingetragen.':'Nothing entered for this month yet.','feste Stunden':'fixed hours',
+  'Schicht eintragen':'Add shift','Schicht bearbeiten':'Edit shift','Pause (Min.)':'Break (min)','Notiz (optional)':'Note (optional)','z. B. Vertretung, Station 3':'e.g. covering, ward 3',
+  '+ Weitere Schicht am selben Tag':'+ Another shift that day','(endet am nächsten Tag)':'(ends the next day)','Bitte Beginn und Ende eintragen':'Please enter start and end',
+  'Schicht eingetragen':'Shift added','Schichtart gespeichert':'Shift type saved','Schichtart gelöscht':'Shift type deleted','Bitte Name und Kürzel eingeben':'Please enter a name and abbreviation',
+  'Deine Schichtarten':'Your shift types','+ Neue Schichtart':'+ New shift type','Soll-Stunden pro Monat':'Target hours per month','Stundenlohn € (optional)':'Hourly wage € (optional)',
+  'z. B. 160':'e.g. 160','z. B. 15,50':'e.g. 15.50','Schicht-Karte auf der Übersicht zeigen':'Show shift card on the overview','Noch keine Schichtarten.':'No shift types yet.',
+  'Mit Soll-Stunden siehst du Über- und Minusstunden für jeden Monat und fürs Jahr. Mit Stundenlohn zeigt die App einen ungefähren Brutto-Verdienst (ohne Zuschläge).':'With target hours you see overtime and undertime for every month and for the year. With an hourly wage the app shows approximate gross pay (without bonuses).',
+  'Schichtart bearbeiten':'Edit shift type','Neue Schichtart':'New shift type','Kürzel':'Abbreviation','z. B. Frühschicht, Bereitschaft':'e.g. early shift, on-call','Farbe':'Colour','Art':'Type',
+  'Mit Uhrzeit':'With times','Feste Stunden (z. B. Urlaub)':'Fixed hours (e.g. holiday)','Stunden pro Tag':'Hours per day','Zurück':'Back','zurück':'back','weiter':'next',
+  'Frühschicht':'Early shift','Spätschicht':'Late shift','Nachtschicht':'Night shift','Urlaub':'Holiday','Krank':'Sick','Heute frei':'Day off today','Schichtbeginn':'Shift start',
+  'Trag deinen Dienstplan ein – die Stunden werden automatisch für Monat und Jahr zusammengerechnet.':'Enter your roster – the hours are added up automatically for the month and the year.'
 };
+const trIn = x => tr1(x) ?? x;
 const RX = [
+  [/^([+−]?[\d.,]+) Std\.$/, '$1 h'],
+  [/^noch ([\d.,]+) Std\.$/, '$1 h left'],
+  [/^davon gearbeitet (.+)$/, (m, a) => 'of which worked ' + trIn(a)],
+  [/^Gesamt (\d{4}): (.+)$/, (m, a, b) => 'Total ' + a + ': ' + trIn(b)],
+  [/^Gesamt: (.+)$/, (m, a) => 'Total: ' + trIn(a)],
+  [/^Soll: (.+)$/, (m, a) => 'Target: ' + trIn(a)], [/^Soll (.+)$/, (m, a) => 'Target ' + trIn(a)],
+  [/^Saldo: (.+)$/, (m, a) => 'Balance: ' + trIn(a)], [/^Saldo ([^:·]+)$/, 'Balance $1'],
+  [/^Jahr (\d{4})$/, 'Year $1'], [/^Schichten (\d{4})$/, 'Shifts $1'], [/^(\d+) Schichten$/, '$1 shifts'],
+  [/^(\d+) Min\. Pause$/, '$1 min break'],
+  [/^Tippe auf die Tage, um „(.+)“ einzutragen\.$/, (m, a) => 'Tap the days to enter “' + trIn(a) + '”.'],
+  [/^(.+) läuft$/, (m, a) => trIn(a) + ' in progress'], [/^Heute: (.+)$/, (m, a) => 'Today: ' + trIn(a)],
+  [/^Nächste Schicht: (.+)$/, 'Next shift: $1'],
+  [/^(.+) um (\d\d:\d\d) Uhr$/, (m, a, b) => trIn(a) + ' at ' + b], [/^bis (\d\d:\d\d) Uhr$/, 'until $1'],
   [/^noch (\d+) XP bis Level (\d+)$/, '$1 XP to level $2'],
   [/^(\d+) Münzen$/, '$1 coins'],
   [/^(\d+) Münzen · Profil & Shop$/, '$1 coins · Profile & shop'],
@@ -1558,6 +1919,7 @@ const formTitle = (kind, edit) => { const t = T().form[kind][edit?1:0]; return Q
 function formFor(kind, it, date, ftype){
   if (FIN_KINDS.includes(kind)) return finForm(kind, it, date, ftype);
   if (kind === 'reward') return rewardForm(it);
+  if (kind === 'shift') return shiftForm(it, date);
   editing = {kind, id: it ? it.id : null, cat: it?.cat || 'privat', emoji: it?.emoji || '🌱', confirmDel:false, subs: (it?.subs || []).map(x => ({...x}))};
   const tx = T();
   const del = it ? '<button type="button" class="btn danger" id="delBtn">Löschen</button>' : '<span></span>';
@@ -1605,7 +1967,7 @@ function submitForm(fd){
 
 /* ---------- events ---------- */
 function refreshDesign(){ appliedKey = ''; render(); $('#modal').innerHTML = designPicker(); }
-const CLICK_SEL = '[data-tab],[data-new],[data-edit],[data-toggle-task],[data-toggle-habit],[data-sel],[data-cal],[data-tf],[data-subtoggle],[data-sub-add],[data-sub-del],[data-redeem],[data-calview],[data-calnav],[data-dayopen],[data-focus-open],[data-focus-stop],[data-fdur],[data-notif-open],[data-notif-test],[data-ics-open],[data-fm],[data-fset],[data-fcat],[data-budget-open],[data-deposit],[data-dep],[data-cat],[data-emoji],[data-lp-bg],[data-lp-theme],[data-lp-acc],[data-lp-lang],[data-bgmenu],[data-accmenu],[data-close],[data-lvlclose],[data-auth-mode],[data-auth-local],[data-login],[data-logout],[data-migrate],[data-import-open],[data-export],[data-export-dl],[data-copy-export],[data-copy],[data-delacc-open],#delBtn,#clearDone';
+const CLICK_SEL = '[data-tab],[data-new],[data-edit],[data-toggle-task],[data-toggle-habit],[data-sel],[data-cal],[data-tf],[data-subtoggle],[data-sub-add],[data-sub-del],[data-redeem],[data-calview],[data-calnav],[data-dayopen],[data-focus-open],[data-focus-stop],[data-fdur],[data-notif-open],[data-notif-test],[data-ics-open],[data-fm],[data-fset],[data-fcat],[data-budget-open],[data-deposit],[data-dep],[data-cat],[data-emoji],[data-lp-bg],[data-lp-theme],[data-lp-acc],[data-lp-lang],[data-bgmenu],[data-accmenu],[data-close],[data-lvlclose],[data-auth-mode],[data-auth-local],[data-login],[data-logout],[data-migrate],[data-import-open],[data-export],[data-export-dl],[data-copy-export],[data-copy],[data-delacc-open],[data-shday],[data-shpaint],[data-shview],[data-shm],[data-shy],[data-shmonth],[data-shset],[data-shcopy],[data-shopen],[data-shtype],[data-shtedit],[data-shcolor],[data-shmode],[data-shtdel],[data-shset-back],#delBtn,#clearDone';
 document.addEventListener('click', e => {
   const t = e.target.closest(CLICK_SEL);
   if (!t || t === document.body || t === document.documentElement) { if (e.target === $('#scrim')) closeModal(); return; }
@@ -1644,6 +2006,22 @@ document.addEventListener('click', e => {
   if (t.hasAttribute('data-focus-open')) { openModal(focusForm()); return; }
   if (t.hasAttribute('data-focus-stop')) { stopFocus(); return; }
   if (t.dataset.fdur) { editing.fdur = +t.dataset.fdur; document.querySelectorAll('.ftime button').forEach(b => b.classList.toggle('on', b === t)); return; }
+  /* Schichten */
+  if (t.dataset.shday) { if (ui.shPaint) { paintDay(t.dataset.shday); return; } const ex = shiftsOn(t.dataset.shday); openModal(shiftForm(ex[0] || null, t.dataset.shday)); return; }
+  if (t.dataset.shopen) { const ex = shiftsOn(t.dataset.shopen); openModal(shiftForm(ex[0] || null, t.dataset.shopen)); return; }
+  if (t.dataset.shpaint) { ui.shPaint = ui.shPaint === t.dataset.shpaint ? '' : t.dataset.shpaint; render(); return; }
+  if (t.dataset.shview) { ui.shView = t.dataset.shview; ui.shPaint = ''; render(); return; }
+  if (t.dataset.shm) { const v = +t.dataset.shm, d = v === 0 ? new Date() : new Date(ui.shMonth[0], ui.shMonth[1] + v, 1); ui.shMonth = [d.getFullYear(), d.getMonth()]; render(); return; }
+  if (t.dataset.shy) { const v = +t.dataset.shy; ui.shYear = v === 0 ? new Date().getFullYear() : ui.shYear + v; render(); return; }
+  if (t.dataset.shmonth) { const [yy, mm] = t.dataset.shmonth.split('-').map(Number); ui.shMonth = [yy, mm]; ui.shView = 'month'; render(); window.scrollTo(0, 0); return; }
+  if (t.hasAttribute('data-shset')) { shDraft = null; openModal(shSettings()); return; }
+  if (t.hasAttribute('data-shcopy')) { copyText(shSummaryText(), t); return; }
+  if (t.dataset.shtype) { pickShiftType(t.dataset.shtype); return; }
+  if (t.dataset.shtedit) { const f = $('#shSetForm'); if (f) { const fd = new FormData(f); shDraft = {soll: (fd.get('soll') || '').toString(), wage: (fd.get('wage') || '').toString(), onToday: fd.get('onToday') === 'on' ? 'on' : ''}; } openModal(shTypeForm(t.dataset.shtedit)); return; }
+  if (t.dataset.shcolor) { editing.color = t.dataset.shcolor; document.querySelectorAll('.swatches button').forEach(b => b.classList.toggle('on', b === t)); return; }
+  if (t.dataset.shmode) { const f = $('#shTypeForm'), cur = editing.id ? shType(editing.id) : null; editing.tmode = t.dataset.shmode; document.querySelectorAll('.shmode button').forEach(b => b.classList.toggle('on', b === t)); $('#shTypeTimes').innerHTML = shTypeTimeFields(cur); return; }
+  if (t.hasAttribute('data-shtdel')) { deleteShType(t); return; }
+  if (t.hasAttribute('data-shset-back')) { openModal(shSettings()); return; }
   if (t.dataset.tab) { e.preventDefault(); if ($('#scrim').classList.contains('open')) closeModal(); ui.tab = t.dataset.tab; try{localStorage.setItem('lebensplaner.tab',ui.tab)}catch(_){} render(); window.scrollTo(0,0); return; }
   if (t.dataset.new) { openModal(formFor(t.dataset.new, null, t.dataset.date, t.dataset.ftype)); return; }
   if (t.dataset.edit) { const it = items.get(t.dataset.edit); if (it) openModal(formFor(it.kind, it)); return; }
@@ -1697,6 +2075,9 @@ document.addEventListener('submit', e => {
   if (id === 'notifForm') { saveNotif(e.target); return; }
   if (id === 'icsForm') { const f = $('#icsFile') && $('#icsFile').files[0]; if (!f) { toast('Bitte eine .ics-Datei wählen'); return; } const rd = new FileReader(); rd.onload = () => { const list = parseICS(String(rd.result || '')); if (!list.length) { toast('Keine Termine in der Datei gefunden'); return; } importItems(list); closeModal(); toast(list.length + ' Termine importiert'); }; rd.readAsText(f); return; }
   if (id === 'depositForm') { doDeposit('in'); return; }
+  if (id === 'shiftForm') { saveShift(new FormData(e.target)); return; }
+  if (id === 'shSetForm') { saveShSettings(new FormData(e.target)); return; }
+  if (id === 'shTypeForm') { saveShType(new FormData(e.target)); return; }
   if (id === 'f') submitForm(new FormData(e.target));
   if (id === 'quickTask') {
     const v = $('#quickTitle').value.trim(); if (!v) return;
@@ -1705,6 +2086,7 @@ document.addEventListener('submit', e => {
     setTimeout(()=>{ const q=$('#quickTitle'); q && q.focus(); },0);
   }
 });
+document.addEventListener('input', e => { if (e.target && e.target.closest && e.target.closest('#shiftForm')) updateShCalc(); });
 document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target && e.target.id === 'subNew') { e.preventDefault(); addSub(); return; } if (e.key==='Escape') { if ($('#scrim').classList.contains('open')) closeModal(); $('#lvlup').classList.remove('show'); } });
 /* ---------- start ---------- */
 function startLocal(msg){
