@@ -1,0 +1,12 @@
+{
+  "appId": "de.lebensplaner.app",
+  "appName": "Lebensplaner",
+  "webDir": "dist",
+  "backgroundColor": "#0a0806",
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "css",
+      "style": "DARK"
+    }
+  }
+}

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0806">
+<meta name="description" content="Lebensplaner – Termine, Quests, Routinen und Notizen an einem Ort.">
+<title>Lebensplaner</title>
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="th-quest acc-gold">
+<div id="bg" class="bg-quest"></div>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="brand" id="brand"></div>
+      <div class="status" id="status" data-state="busy" data-accmenu title="Konto & Sync">Lade …</div>
+    </div>
+    <div class="head-r"><nav id="nav"></nav><button class="bg-btn" id="btnAcc" data-accmenu aria-label="Konto" title="Konto, Sync & Daten"></button><button class="bg-btn" id="btnDesign" data-bgmenu aria-label="Design wählen" title="Design &amp; Hintergrund"></button></div>
+  </header>
+  <main id="main"></main>
+</div>
+<div class="scrim" id="scrim"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
+<div class="lvlup" id="lvlup" data-lvlclose></div>
+<script type="module" src="app.js"></script>
+</body>
+</html>
