@@ -202,6 +202,7 @@ function embers(){
 }
 let appliedKey = '';
 function applyTheme(){
+  applyLang();
   const st = S();
   if (st.theme === 'quest' || st.theme === 'pastel') theme = st.theme;
   if (ACCS.some(a => a[0] === st.accent)) accent = st.accent;
@@ -231,6 +232,7 @@ function designPicker(){
   </div>
   ${q ? `<label>Leuchtfarbe</label><div class="bgpick">${ACCS.map(([k,l,c]) => `<button type="button" data-lp-acc="${k}" class="${accent===k?'on':''}"><span class="pv" style="background:radial-gradient(ellipse at 50% 120%,${c},#0b0907 72%)"></span><span class="lb">${l}</span></button>`).join('')}</div>`
       : `<label>Hintergrund</label><div class="bgpick">${BGS.map(([k,l]) => `<button type="button" data-lp-bg="${k}" class="${currentBg===k?'on':''}"><span class="pv bg-${k} ${k==='wolken'?'mini':''}"></span><span class="lb">${l}</span></button>`).join('')}</div>`}
+  ${langPicker()}
   <div class="actions"><span></span><button type="button" class="btn primary" data-close>Fertig</button></div>`;
 }
 
@@ -639,7 +641,8 @@ const ICATS = { gehalt:['Gehalt','💼','#6fd39a'], nebenjob:['Nebenjob','🧰',
 const fcatOf = (type, k) => (type === 'income' ? (ICATS[k] || ICATS.einnahme) : (FCATS[k] || FCATS.sonstiges));
 const INTERVALS = { weekly:['Wöchentlich',52/12,'pro Woche'], monthly:['Monatlich',1,'pro Monat'], quarterly:['Vierteljährlich',1/3,'pro Quartal'], halfyearly:['Halbjährlich',1/6,'pro Halbjahr'], yearly:['Jährlich',1/12,'pro Jahr'] };
 const EURF = new Intl.NumberFormat('de-DE', {style:'currency', currency:'EUR'});
-const eur = n => EURF.format(Math.round((+n || 0) * 100) / 100);
+const EURF_EN = new Intl.NumberFormat('en-IE', {style:'currency', currency:'EUR'});
+const eur = n => (LANG === 'en' ? EURF_EN : EURF).format(Math.round((+n || 0) * 100) / 100);
 const numDE = n => (Math.round((+n || 0) * 100) / 100).toLocaleString('de-DE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 function parseAmt(s){
   s = String(s || '').trim().replace(/[\s€]/g, '');
@@ -1238,7 +1241,8 @@ async function doScheduleNotifications(){
     const perm = await LocalNotifications.checkPermissions(); if (perm.display !== 'granted') return;
     const now = Date.now(), list = [];
     const at = (ds, hm) => { const [h, m] = String(hm || '09:00').split(':').map(Number); const d = parse(ds); d.setHours(h || 0, m || 0, 0, 0); return d; };
-    const push = (key, title, body, when, horizonDays = 14) => { const t = when.getTime(); if (t > now + 30000 && t < now + horizonDays * 864e5) list.push({id: notifId(key), title, body, schedule: {at: when, allowWhileIdle: true}, smallIcon: 'ic_stat_lebensplaner', iconColor: '#F2B544'}); };
+    const L = x => LANG === 'en' ? trStr(String(x)) : String(x);
+    const push = (key, title, body, when, horizonDays = 14) => { const t = when.getTime(); if (t > now + 30000 && t < now + horizonDays * 864e5) list.push({id: notifId(key), title: L(title), body: L(body), schedule: {at: when, allowWhileIdle: true}, smallIcon: 'ic_stat_lebensplaner', iconColor: '#F2B544'}); };
     for (let i = 0; i < 14; i++) {
       const ds = ymd(addDays(new Date(), i));
       if (ns.events) eventsOn(ds).forEach(e => {
@@ -1305,6 +1309,245 @@ function afterRender(){
   updateFocusPill();
 }
 
+/* ---------- Sprache (Deutsch / Englisch) ---------- */
+let LANG = 'de';
+const MONTHS_DE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+const MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const WD_DE = ['Mo','Di','Mi','Do','Fr','Sa','So'], WD_EN = ['Mo','Tu','We','Th','Fr','Sa','Su'];
+function langSetting(){ const s = S().lang; if (s) return s; try { return localStorage.getItem('lebensplaner.lang') || 'auto'; } catch(e) { return 'auto'; } }
+function resolveLang(){ const l = langSetting(); return l === 'auto' ? ((navigator.language || 'de').toLowerCase().startsWith('de') ? 'de' : 'en') : l; }
+function applyLang(){
+  const l = resolveLang(); if (l === LANG && document.documentElement.lang === l) return false;
+  LANG = l; LOCALE = l === 'en' ? 'en-GB' : 'de-DE'; MONTHS = l === 'en' ? MONTHS_EN : MONTHS_DE; WD = l === 'en' ? WD_EN : WD_DE;
+  document.documentElement.lang = l; appliedKey = '';
+  if (l === 'en') trNode(document.body);
+  return true;
+}
+const D = {
+  // Navigation & Überschriften
+  'Heute':'Today','Kalender':'Calendar','Aufgaben':'Tasks','Gewohnheiten':'Habits','Finanzen':'Finances','Notizen':'Notes',
+  'Übersicht':'Overview','Quests':'Quests','Routinen':'Routines','Logbuch':'Logbook','To-dos':'To-dos','Meine To-dos':'My to-dos',
+  'Nächste 7 Tage':'Next 7 days','Heute im Plan':'Today\u2019s plan','Aktive Quests':'Active quests','Quest-Log':'Quest log','Fällige Quests':'Due quests','Fällige To-dos':'Due to-dos',
+  'Mein':'My','Lebensplaner':'Life Planner','Lebens':'Life','planer':'planner','Mein Lebensplaner':'My Life Planner',
+  // Knöpfe
+  '+ Termin':'+ Event','+ Aufgabe':'+ Task','+ Neu':'+ New','+ Gewohnheit':'+ Habit','+ Notiz':'+ Note','+ Quest':'+ Quest','+ Routine':'+ Routine','+ Eintrag':'+ Entry',
+  'Mit Details …':'With details …','Mit Details':'With details','Hinzufügen':'Add','Annehmen':'Accept','+ Hinzufügen':'+ Add',
+  'Speichern':'Save','Abbrechen':'Cancel','Löschen':'Delete','Wirklich löschen?':'Really delete?','Fertig':'Done','Öffnen':'Open','Ansehen':'View',
+  'Kopieren':'Copy','Kopiert ✓':'Copied ✓','Übernehmen':'Transfer','Später':'Later','Start':'Start','Ausblenden':'Hide',
+  'Erledigte löschen':'Delete completed','Abgeschlossene löschen (XP bleiben)':'Delete completed (XP stays)','Sicher? Nochmal tippen':'Sure? Tap again',
+  'Budgets':'Budgets','Einlösen':'Redeem','+ Einzahlen':'+ Deposit','− Abheben':'− Withdraw','+ Belohnung':'+ Reward','− Ausgabe':'− Expense','+ Einnahme':'+ Income','↻ Fixkosten / Abo':'↻ Fixed cost / subscription',
+  'Zurück zur Übersicht':'Back to overview','Fokus':'Focus','Fokus-Timer':'Focus timer','Test senden':'Send test',
+  'Monat':'Month','Woche':'Week','Tag':'Day',
+  // Leere Zustände
+  'Keine Termine heute – Zeit für dich ☕':'No events today – time for yourself ☕','Nichts Dringendes – stark! 🎉':'Nothing urgent – nice! 🎉',
+  'Die Woche ist noch frei 🌈':'The week is still free 🌈','Hier ist nichts – genieß es ✨':'Nothing here – enjoy it ✨',
+  'Noch keine Gewohnheiten. Kleine tägliche Dinge – Sport, Lesen, Wasser trinken, früh schlafen – kannst du hier abhaken und deine Serie wachsen sehen.':'No habits yet. Tick off small daily things – exercise, reading, drinking water, sleeping early – and watch your streak grow.',
+  'Ideen, Einkaufslisten, Ziele – alles, was du festhalten willst.':'Ideas, shopping lists, goals – everything you want to keep.',
+  'Keine Termine.':'No events.','Einen Moment … 🌷':'One moment … 🌷','Lade Daten …':'Loading data …',
+  'Keine Termine heute. Freie Zeit für dich.':'No events today. Free time for you.','Keine aktiven Quests – alles erledigt.':'No active quests – all done.',
+  'Die nächsten 7 Tage sind noch frei.':'The next 7 days are still free.','Keine Quests in dieser Liste.':'No quests in this list.',
+  'Noch keine Routinen. Hake tägliche Gewohnheiten wie Training, Lesen oder früh schlafen ab, baue Serien auf und sammle XP.':'No routines yet. Tick off daily habits like training, reading or sleeping early, build streaks and collect XP.',
+  'Halte Ideen, Ziele und Listen in deinem Logbuch fest.':'Keep ideas, goals and lists in your logbook.',
+  'Ohne Titel':'Untitled',
+  // Filter
+  'Offen':'Open','Heute & überfällig':'Today & overdue','Erledigt':'Done','Alle':'All','Aktiv':'Active','Abgeschlossen':'Completed',
+  'Neue Aufgabe eintippen und Enter drücken':'Type a new task and press Enter','Neue Quest eintippen und Enter drücken':'Type a new quest and press Enter',
+  // Formulare
+  'Neuer Termin':'New event','Termin bearbeiten':'Edit event','Neues To-do':'New to-do','To-do bearbeiten':'Edit to-do','Neue Gewohnheit':'New habit','Gewohnheit bearbeiten':'Edit habit',
+  'Neue Notiz':'New note','Notiz':'Note','Neue Quest':'New quest','Quest bearbeiten':'Edit quest','Neue Routine':'New routine','Routine bearbeiten':'Edit routine','Neuer Eintrag':'New entry','Logbuch-Eintrag':'Logbook entry',
+  'Titel':'Title','Datum':'Date','Von':'From','Bis':'To','Kategorie':'Category','Wiederholen':'Repeat','Ort':'Location','Text':'Text','Details':'Details','Name':'Name',
+  'Was ist zu tun?':'What needs to be done?','Fällig am':'Due on','Priorität':'Priority','Sticker':'Sticker','Symbol':'Icon','Unteraufgaben':'Subtasks','Neue Unteraufgabe':'New subtask',
+  'Nie':'Never','Täglich':'Daily','Wöchentlich':'Weekly','Monatlich':'Monthly','Jährlich':'Yearly','Jährlich (z. B. Geburtstag)':'Yearly (e.g. birthday)','Werktags (Mo–Fr)':'Weekdays (Mon–Fri)',
+  'Vierteljährlich':'Quarterly','Halbjährlich':'Half-yearly',
+  'Wichtig':'Important','Normal':'Normal','Irgendwann':'Someday','Wichtig · +40 XP':'Important · +40 XP','Normal · +20 XP':'Normal · +20 XP','Irgendwann · +20 XP':'Someday · +20 XP',
+  'wichtig':'important','Erinnerung':'Reminder','Keine':'None','Zur Startzeit':'At start time','10 Min. vorher':'10 min before','15 Min. vorher':'15 min before','30 Min. vorher':'30 min before','1 Std. vorher':'1 hour before','2 Std. vorher':'2 hours before','1 Tag vorher':'1 day before',
+  'z. B. Zahnarzt':'e.g. dentist','z. B. 30 Min. Training':'e.g. 30 min training','z. B. 30 Min. Bewegung':'e.g. 30 min exercise',
+  'Arbeit':'Work','Privat':'Personal','Gesundheit':'Health','Familie':'Family','Sonstiges':'Other',
+  'täglich':'daily','wöchentlich':'weekly','monatlich':'monthly','jährlich':'yearly','ganztägig':'all day','ganz-':'all','tägig':'day',
+  // Speichern-Meldungen
+  'Termin angelegt 🌸':'Event created 🌸','Aufgabe angelegt 🌸':'Task created 🌸','Gewohnheit angelegt 🌸':'Habit created 🌸','Notiz angelegt 🌸':'Note created 🌸','Gespeichert ✨':'Saved ✨',
+  'Termin eingetragen':'Event added','Quest angenommen':'Quest accepted','Routine angelegt':'Routine created','Eintrag gespeichert':'Entry saved','Gespeichert':'Saved','Gelöscht':'Deleted',
+  'Log aufgeräumt':'Log cleaned up','Erledigte gelöscht':'Completed deleted','Abgemeldet':'Signed out',
+  // Startseite
+  'Gute Nacht':'Good night','Guten Morgen':'Good morning','Hallo':'Hello','Guten Abend':'Good evening','Noch wach?':'Still awake?','Willkommen zurück':'Welcome back',
+  'Termine heute':'Events today','offene Aufgaben':'open tasks','Routinen heute':'Routines today','Beste Serie':'Best streak','Level':'Level',
+  'Kleine Schritte sind auch Schritte.':'Small steps are still steps.','Du schaffst das – einen Tag nach dem anderen.':'You\u2019ve got this – one day at a time.',
+  'Heute ist ein guter Tag für einen guten Tag.':'Today is a good day for a good day.','Sei lieb zu dir selbst.':'Be kind to yourself.','Fortschritt, nicht Perfektion.':'Progress, not perfection.',
+  'Atme durch. Du hast Zeit.':'Breathe. You have time.','Mach heute etwas, worüber dein zukünftiges Ich sich freut.':'Do something today your future self will thank you for.',
+  'Ruhe ist auch produktiv.':'Rest is productive too.','Glaub an dich, so wie deine beste Freundin an dich glaubt.':'Believe in yourself the way your best friend does.','Jeder Haken zählt.':'Every tick counts.',
+  'Jeder Tag ist ein neues Level.':'Every day is a new level.','Kleine Siege summieren sich.':'Small wins add up.','Disziplin schlägt Motivation.':'Discipline beats motivation.',
+  'Heute trainieren, morgen stärker.':'Train today, stronger tomorrow.','Fokus. Eine Quest nach der anderen.':'Focus. One quest at a time.','Dein zukünftiges Ich zählt auf dich.':'Your future self is counting on you.',
+  'Fortschritt ist eine Entscheidung.':'Progress is a decision.','Auch Pausen laden Energie auf.':'Breaks recharge you too.','Wer dranbleibt, levelt auf.':'Keep going and you level up.','Mach den ersten Schritt – der Rest folgt.':'Take the first step – the rest will follow.',
+  'Neuling':'Novice','Abenteurer':'Adventurer','Pfadfinder':'Pathfinder','Veteran':'Veteran','Meister':'Master','Champion':'Champion','Legende':'Legend',
+  'Level aufgestiegen':'Level up','Tippen zum Fortfahren':'Tap to continue','Erfolg freigeschaltet':'Achievement unlocked',
+  'Leg z.\u00a0B. „2 Liter Wasser“ oder „10 Min. lesen“ an.':'Add e.g. “2 litres of water” or “read 10 min”.',
+  'Lege eine Routine an, z.\u00a0B. „Training“ oder „10 Min. lesen“. Jedes Abhaken bringt +10 XP.':'Create a routine, e.g. “training” or “read 10 min”. Every tick gives +10 XP.',
+  'Nächste Abbuchungen':'Upcoming payments','Übrig':'Left','Minus':'Deficit','Ausgaben':'Expenses','Einnahmen':'Income','Budget frei':'Budget left',
+  'Dein Wochenrückblick':'Your weekly review','Deine letzte Woche':'Your last week','Routinen-Quote':'Routine rate','Quests erledigt':'Quests done','Termine':'Events','Fokus-Runden':'Focus sessions',
+  // Kalender
+  'Zahlungen':'Payments','Quest':'Quest',
+  // Finanzen
+  'Fixkosten / Monat':'Fixed costs / month','Kategorien':'Categories','Fixkosten & Abos':'Fixed costs & subscriptions','Buchungen':'Transactions','Sparziele':'Savings goals','Verlauf (6 Monate)':'History (6 months)',
+  'Noch keine Ausgaben in diesem Monat.':'No expenses this month yet.','In diesem Monat gibt es noch keine Buchungen.':'No transactions this month yet.',
+  'Trag hier regelmäßige Zahlungen ein – Miete, Handyvertrag, Versicherungen, Streaming-Abos, Fitnessstudio, aber auch dein Gehalt. Sie erscheinen dann automatisch in jedem Monat.':'Add regular payments here – rent, phone contract, insurance, streaming, gym, and also your salary. They then appear automatically every month.',
+  'Spar auf etwas hin – Urlaub, Führerschein, neues Handy. Du siehst, wie viel noch fehlt und wie viel du pro Monat zurücklegen musst.':'Save up for something – a holiday, driving licence, new phone. You\u2019ll see how much is missing and how much to put aside each month.',
+  'Wohnen':'Housing','Lebensmittel':'Groceries','Mobilität':'Transport','Versicherung':'Insurance','Abos & Medien':'Subscriptions & media','Handy & Internet':'Phone & internet','Freizeit':'Leisure','Kleidung':'Clothing','Sparen':'Savings',
+  'Gehalt':'Salary','Nebenjob':'Side job','Kindergeld':'Child benefit','Geschenk':'Gift',
+  'Ausgabe':'Expense','Einnahme':'Income','Betrag (€)':'Amount (€)','Neue Buchung':'New transaction','Buchung bearbeiten':'Edit transaction','Buchung eingetragen':'Transaction added','Einnahme eingetragen':'Income added',
+  'Fixkosten / Abo / Einkommen':'Fixed cost / subscription / income','Fixkosten bearbeiten':'Edit fixed cost','Fixkosten angelegt':'Fixed cost created','Wie oft?':'How often?',
+  'Nächste / erste Zahlung':'Next / first payment','Endet am (optional)':'Ends on (optional)','Kündbar bis (optional) – Erinnerung 7 Tage vorher':'Cancellable until (optional) – reminder 7 days before',
+  'z. B. Miete, Netflix, Handyvertrag, Gehalt':'e.g. rent, Netflix, phone contract, salary','z. B. Wocheneinkauf':'e.g. weekly shopping','z. B. Vertragsnummer, kündbar bis …':'e.g. contract number, cancellable until …',
+  'Neues Sparziel':'New savings goal','Sparziel bearbeiten':'Edit savings goal','Sparziel angelegt':'Savings goal created','Wofür sparst du?':'What are you saving for?','Zielbetrag (€)':'Target amount (€)','Schon gespart (€)':'Already saved (€)','Bis wann? (optional)':'By when? (optional)',
+  'z. B. Urlaub, Führerschein, Notgroschen':'e.g. holiday, driving licence, emergency fund','Gespart:':'Saved:','Sparziel erreicht!':'Savings goal reached!',
+  'Monatsbudgets':'Monthly budgets','Wie viel möchtest du pro Monat höchstens ausgeben? Leer lassen = kein Budget.':'How much do you want to spend at most per month? Leave empty = no budget.','Budgets gespeichert':'Budgets saved',
+  'Bitte einen gültigen Betrag eingeben':'Please enter a valid amount','Bitte einen gültigen Zielbetrag eingeben':'Please enter a valid target amount','geplant':'planned','beendet':'ended',
+  // Profil, Shop, Erfolge
+  'Dein Profil':'Your profile','🏆 Dein Profil':'🏆 Your profile','Münzen':'coins','Wochenrückblick':'Weekly review','Belohnungs-Shop':'Reward shop','Erfolge':'Achievements','Zuletzt eingelöst':'Recently redeemed',
+  'Leg Belohnungen an, die du dir mit Münzen „kaufen“ kannst – zum Beispiel Pizza bestellen, einen Gaming-Abend oder ein neues Spiel. Für jede 10 XP bekommst du 1 Münze.':'Create rewards you can “buy” with coins – e.g. ordering pizza, a gaming night or a new game. You get 1 coin for every 10 XP.',
+  'Neue Belohnung':'New reward','Belohnung bearbeiten':'Edit reward','Belohnung':'Reward','Preis in Münzen':'Price in coins','Belohnung angelegt':'Reward created','Bitte einen Preis eingeben':'Please enter a price',
+  'Was gönnst du dir, wenn du genug Münzen gesammelt hast? Für jede 10 XP bekommst du 1 Münze.':'What will you treat yourself to once you have enough coins? You get 1 coin for every 10 XP.',
+  'z. B. Pizza bestellen, Gaming-Abend, Kino':'e.g. order pizza, gaming night, cinema','freigeschaltet':'unlocked',
+  'Erste Quest':'First quest','Schließe deine erste Quest ab':'Complete your first quest','Quest-Jäger':'Quest hunter','Schließe 10 Quests ab':'Complete 10 quests','Unermüdlich':'Tireless','Schließe 50 Quests ab':'Complete 50 quests',
+  'Legendär fleißig':'Legendary hard worker','Schließe 100 Quests ab':'Complete 100 quests','Dranbleiber':'Sticker-to-it','Halte eine Routine 3 Tage am Stück':'Keep a routine 3 days in a row',
+  'Eine Woche stark':'One strong week','Halte eine Routine 7 Tage am Stück':'Keep a routine 7 days in a row','Eiserner Wille':'Iron will','Halte eine Routine 30 Tage am Stück':'Keep a routine 30 days in a row',
+  'Gewohnheitstier':'Creature of habit','Hake 100 Mal eine Routine ab':'Tick off a routine 100 times','Aufsteiger':'Climber','Erreiche Level 5':'Reach level 5','Erreiche Level 10':'Reach level 10','Erreiche Level 20':'Reach level 20',
+  'Gut organisiert':'Well organised','Trage 10 Termine ein':'Add 10 events','Erster Fokus':'First focus','Schließe eine Fokus-Runde ab':'Complete a focus session','Tiefer Fokus':'Deep focus','Schließe 10 Fokus-Runden ab':'Complete 10 focus sessions',
+  'Sparfuchs':'Smart saver','Erreiche dein erstes Sparziel':'Reach your first savings goal','Budget-Meister':'Budget master','Halte einen ganzen Monat alle Budgets ein':'Stay within all budgets for a whole month',
+  'Gönn dir':'Treat yourself','Löse deine erste Belohnung ein':'Redeem your first reward','Alle Unteraufgaben erledigt – jetzt die Quest abhaken!':'All subtasks done – now tick off the quest!',
+  // Fokus
+  'Fokus läuft':'Focus running','Woran arbeitest du? (optional)':'What are you working on? (optional)','Dauer':'Duration','Du kannst das Fenster schließen – der Timer läuft weiter.':'You can close this window – the timer keeps running.',
+  'Fokus abgebrochen':'Focus cancelled','Arbeite konzentriert an einer Sache, ohne Ablenkung. Wenn die Zeit um ist, bekommst du':'Work on one thing without distractions. When time is up you get','und eine Benachrichtigung':'and a notification',
+  // Erinnerungen
+  'Erinnerungen':'Reminders','Erinnerungen einschalten':'Turn on reminders','Nur in der Android-App':'Only in the Android app','Erinnerungen kommen als Benachrichtigung aufs Handy. Die Einstellungen hier gelten auch dort.':'Reminders arrive as notifications on your phone. The settings here apply there too.',
+  'Ganztägige Termine um':'All-day events at','Fällige Quests / Aufgaben um':'Due quests / tasks at','Abbuchungen (am Vortag) um':'Payments (the day before) at','Offene Routinen um':'Open routines at',
+  'Kündigungsfristen von Abos erinnern dich immer 7 Tage vorher. Pro Termin kannst du die Erinnerung im Termin selbst ändern.':'Subscription cancellation deadlines always remind you 7 days before. You can change the reminder for each event in the event itself.',
+  'Erinnerungen gespeichert':'Reminders saved','Test kommt in 5 Sekunden':'Test arrives in 5 seconds','Benachrichtigungen sind nicht erlaubt':'Notifications are not allowed','Konnte keine Erinnerung planen':'Could not schedule reminder',
+  'Bitte Benachrichtigungen in den Android-Einstellungen erlauben':'Please allow notifications in Android settings',
+  // Konto & Daten
+  'Konto':'Account','Ohne Konto':'Without account','Abmelden':'Sign out','Anmelden / Konto erstellen':'Sign in / create account','Andere Geräte':'Other devices','Daten':'Data','Importieren':'Import','Exportieren':'Export',
+  'Einstellungen':'Settings','Profil & Erfolge':'Profile & achievements','Kalender (.ics) importieren':'Import calendar (.ics)','Konto und alle Daten löschen':'Delete account and all data','Datenschutz':'Privacy',
+  'Alles ist gespeichert und wird mit deinen anderen Geräten abgeglichen.':'Everything is saved and synced with your other devices.','Verbinde mit deinem Konto …':'Connecting to your account …',
+  'Gerade offline – deine Änderungen werden gespeichert und automatisch abgeglichen, sobald du wieder online bist.':'Offline right now – your changes are saved and synced automatically once you\u2019re back online.',
+  'Deine Einträge liegen nur auf diesem Gerät. Melde dich an, damit sie auch auf deinen anderen Geräten erscheinen.':'Your entries are only on this device. Sign in so they also appear on your other devices.',
+  'Die Verbindung ist unterbrochen. Prüfe deine Internetverbindung.':'The connection was interrupted. Check your internet connection.',
+  'Die Android-App bekommst du hier – danach mit demselben Konto anmelden:':'Get the Android app here – then sign in with the same account:','App herunterladen':'Download app','Am PC öffnest du':'On your PC, open','und meldest dich mit demselben Konto an.':'and sign in with the same account.',
+  'Möchtest du sie in dein Konto übernehmen?':'Do you want to move them into your account?','Daten übernehmen?':'Transfer data?','Auf diesem Gerät sind':'There are','gespeichert, die noch nicht in deinem Konto sind. Sollen sie übernommen werden?':'saved on this device that aren\u2019t in your account yet. Transfer them?',
+  'Hier sind alle deine Daten. Kopiere den Text und speichere ihn z. B. in einer Notiz oder Datei.':'Here is all your data. Copy the text and save it, e.g. in a note or file.','Als Datei speichern':'Save as file',
+  'Wähle eine exportierte Datei (.json) oder füge den Text ein. Vorhandene Einträge bleiben erhalten.':'Choose an exported file (.json) or paste the text. Existing entries are kept.','… oder Text hier einfügen':'… or paste text here',
+  'Das ist keine gültige Lebensplaner-Datei':'This is not a valid Life Planner file','Termine importieren':'Import events','Bitte eine .ics-Datei wählen':'Please choose an .ics file','Keine Termine in der Datei gefunden':'No events found in the file',
+  'Exportiere deinen Kalender als':'Export your calendar as','-Datei (Outlook: Kalender → Freigeben/Veröffentlichen bzw. „Kalender speichern“; Google Kalender: Einstellungen → Importieren & Exportieren → Exportieren) und wähle sie hier aus.':' file (Outlook: Calendar → Share/Publish or “Save calendar”; Google Calendar: Settings → Import & export → Export) and choose it here.',
+  'Dein Konto und':'Your account and','Termine, Aufgaben, Routinen und Notizen werden endgültig gelöscht. Zur Bestätigung gib dein Passwort ein.':'events, tasks, routines and notes will be permanently deleted. Enter your password to confirm.',
+  'alle':'all','Endgültig löschen':'Delete permanently','Dein Konto wurde gelöscht':'Your account was deleted','Passwort':'Password','Bitte Text markieren und kopieren':'Please select and copy the text',
+  'Konnte nicht speichern':'Could not save','Konnte nicht alles speichern':'Could not save everything','Speichern auf dem Gerät nicht möglich':'Saving on this device is not possible',
+  'Speicher voll – bitte alte Einträge löschen':'Storage full – please delete old entries','Keine Berechtigung – Firestore-Regeln prüfen':'No permission – check Firestore rules',
+  // Anmeldung
+  'Willkommen':'Welcome','Willkommen!':'Welcome!','Mit einem Konto sind deine Termine auf Handy und PC immer gleich.':'With an account your events are always the same on phone and PC.',
+  'Anmelden':'Sign in','Konto erstellen':'Create account','E-Mail':'Email','Passwort wiederholen':'Repeat password','Passwort vergessen?':'Forgot password?','Zurück zur Anmeldung':'Back to sign in',
+  'Passwort zurücksetzen':'Reset password','Link zum Zurücksetzen senden':'Send reset link','Einen Moment …':'One moment …','Ohne Konto nutzen (nur dieses Gerät)':'Use without account (this device only)',
+  'du@beispiel.de':'you@example.com','mindestens 6 Zeichen':'at least 6 characters','E-Mail zum Zurücksetzen wurde gesendet':'Reset email sent','Die Passwörter stimmen nicht überein.':'The passwords don\u2019t match.',
+  'Diese E-Mail-Adresse ist ungültig.':'This email address is invalid.','Bitte gib ein Passwort ein.':'Please enter a password.','E-Mail oder Passwort ist falsch.':'Email or password is wrong.',
+  'Zu dieser E-Mail gibt es kein Konto.':'There is no account for this email.','Für diese E-Mail gibt es schon ein Konto – melde dich an.':'An account already exists for this email – please sign in.',
+  'Das Passwort muss mindestens 6 Zeichen haben.':'The password must have at least 6 characters.','Zu viele Versuche. Bitte warte kurz.':'Too many attempts. Please wait a moment.','Keine Internetverbindung.':'No internet connection.',
+  'Bitte melde dich neu an und versuche es dann noch einmal.':'Please sign in again and then try once more.','E-Mail/Passwort-Anmeldung ist in Firebase noch nicht aktiviert.':'Email/password sign-in is not enabled in Firebase yet.',
+  // Status
+  'Lade …':'Loading …','Verbinde …':'Connecting …','Synchronisiert ☁️':'Synced ☁️','Nicht angemeldet':'Not signed in','Nur auf diesem Gerät gespeichert':'Saved on this device only',
+  'Nur auf diesem Gerät · anmelden zum Synchronisieren':'This device only · sign in to sync','Offline – Änderungen werden später abgeglichen':'Offline – changes will sync later','Verbindung unterbrochen':'Connection interrupted','Sync-Fehler – nur auf diesem Gerät':'Sync error – this device only',
+  // Design
+  'Design':'Design','Stil':'Style','Leuchtfarbe':'Glow colour','Hintergrund':'Background','Sprache':'Language','Automatisch':'Automatic','Deutsch':'Deutsch','English':'English',
+  'Quest-Modus ⚔️':'Quest mode ⚔️','Pastell 🌸':'Pastel 🌸','Gold':'Gold','Smaragd':'Emerald','Rubin':'Ruby',
+  'Traum ✨':'Dream ✨','Wolken ☁️':'Clouds ☁️','Blümchen 🌼':'Flowers 🌼','Vichy-Karo 🎀':'Gingham 🎀','Herzen 💗':'Hearts 💗','Salbei 🌿':'Sage 🌿','Punktpapier 📓':'Dot grid 📓',
+  'Konto & Sync':'Account & sync','Konto, Sync & Daten':'Account, sync & data','Design & Hintergrund':'Design & background','Design wählen':'Choose design','Profil, Shop & Erfolge':'Profile, shop & achievements',
+  'erledigt':'done','voriger Monat':'previous month','nächster Monat':'next month','vorige Woche':'previous week','nächste Woche':'next week','voriger Tag':'previous day','nächster Tag':'next day','Termin hinzufügen':'Add event','entfernen':'remove'
+};
+const RX = [
+  [/^noch (\d+) XP bis Level (\d+)$/, '$1 XP to level $2'],
+  [/^(\d+) Münzen$/, '$1 coins'],
+  [/^(\d+) Münzen · Profil & Shop$/, '$1 coins · Profile & shop'],
+  [/^(\d+) Münzen · noch (\d+)$/, '$1 coins · $2 to go'],
+  [/^Level (\d+) · Profil ›$/, 'Level $1 · Profile ›'],
+  [/^(.+) · Level (\d+)$/, (m, a, b) => (D[a] || a) + ' · Level ' + b],
+  [/^noch (.+) frei$/, '$1 left'],
+  [/^noch (.+) frei in deinen Budgets$/, '$1 left in your budgets'],
+  [/^(.+) über deinen Budgets$/, '$1 over your budgets'],
+  [/^(.+) über Budget$/, '$1 over budget'],
+  [/^nächste: (.+)$/, 'next: $1'],
+  [/^nächstes Mal (.+)$/, 'next time $1'],
+  [/^Vorwoche: (.+)$/, 'Last week: $1'],
+  [/^im Vergleich zur Vorwoche$/, 'compared to last week'],
+  [/^[Kk]ündbar bis (.+?)( – noch 7 Tage)?$/, (m, a, b) => (m[0] === 'K' ? 'Cancel by ' : 'cancel by ') + a + (b ? ' – 7 days left' : '')],
+  [/^seit (.+)$/, 'since $1'],
+  [/^(\d+) Einträge importiert$/, '$1 entries imported'],
+  [/^(\d+) Einträge übernommen$/, '$1 entries transferred'],
+  [/^(\d+) Einträge$/, '$1 entries'],
+  [/^(\d+) Einträge ohne Konto auf diesem Gerät$/, '$1 entries without account on this device'],
+  [/^(\d+) Termine importiert$/, '$1 events imported'],
+  [/^\+(\d+) XP$/, '+$1 XP'], [/^−(\d+) XP$/, '−$1 XP'],
+  [/^Erledigt! nächstes Mal (.+)$/, 'Done! next time $1'],
+  [/^Dir fehlen noch (\d+) Münzen$/, 'You need $1 more coins'],
+  [/^Sicher\? −(\d+)$/, 'Sure? −$1'],
+  [/^Gönn dir: (.+)$/, 'Enjoy: $1'],
+  [/^(.+) eingezahlt$/, '$1 deposited'], [/^(.+) abgehoben$/, '$1 withdrawn'],
+  [/^Fokus geschafft! \+(\d+) XP$/, 'Focus complete! +$1 XP'],
+  [/^Fokus geschafft! ⏱$/, 'Focus complete! ⏱'],
+  [/^\+(\d+) XP – Zeit für eine kurze Pause\.$/, '+$1 XP – time for a short break.'],
+  [/^Angemeldet als (.+)$/, 'Signed in as $1'],
+  [/^(\d+) Routinen noch offen$/, '$1 routines still open'],
+  [/^Routine noch offen: (.+)$/, 'Routine still open: $1'],
+  [/^Morgen wird abgebucht: (.+)$/, 'Due tomorrow: $1'],
+  [/^Quest fällig: (.+)$/, 'Quest due: $1'], [/^Heute fällig: (.+)$/, 'Due today: $1'], [/^Kündigungsfrist: (.+)$/, 'Cancellation deadline: $1'],
+  [/^\+(\d+) XP warten auf dich$/, '+$1 XP await you'],
+  [/^In (\d+) Min\.$/, 'In $1 min'], [/^In (\d+(?:[.,]\d+)?) Std\.$/, 'In $1 h'], [/^(\d\d:\d\d) Uhr$/, '$1'],
+  [/^Jetzt$/, 'Now'], [/^Morgen$/, 'Tomorrow'], [/^Heute · ganztägig$/, 'Today · all day'],
+  [/^\+(\d+) weitere$/, '+$1 more'],
+  [/^Standard \((\d+) Min\. vorher\)$/, 'Default ($1 min before)'],
+  [/^(\d+) Min\.$/, '$1 min'],
+  [/^Finanzen · (.+)$/, 'Finances · $1'],
+  [/^≈ (.+) pro Monat$/, '≈ $1 per month'], [/^(.+) pro Jahr$/, '$1 per year'], [/^feste Einnahmen (.+) \/ Monat$/, 'fixed income $1 / month'],
+  [/^(.+) pro Monat bis (.+)$/, '$1 per month until $2'],
+  [/^(\S+ ?€|€\S+) von (\S+ ?€|€\S+)$/, '$1 of $2'], [/^von (.+)$/, 'of $1'],
+  [/^Ø Ausgaben: (.+) \/ Monat$/, 'Avg. expenses: $1 / month'],
+  [/^Einnahmen (.+)$/, 'Income $1'], [/^Ausgaben (.+)$/, 'Expenses $1'],
+  [/^Tage$/, 'days'], [/^überfällig$/, 'overdue'],
+  [/^(\d+) Min\. vorher$/, '$1 min before'],
+  [/^Monatlich$/, 'Monthly']
+];
+function tr1(t){
+  if (Object.prototype.hasOwnProperty.call(D, t)) return D[t];
+  const qm = t.match(/^„([\s\S]+)“$/); if (qm) { const r = tr1(qm[1]); return r != null ? '“' + r + '”' : null; }
+  for (const [re, f] of RX) { if (re.test(t)) return t.replace(re, f); }
+  const pm = t.match(/^([^\p{L}\p{N}„"“]+)([\s\S]+)$/u);
+  if (pm) { const r = tr1(pm[2]); if (r != null) return pm[1] + r; }
+  const sm = t.match(/^([\s\S]+?)([^\p{L}\p{N})]+)$/u);
+  if (sm && Object.prototype.hasOwnProperty.call(D, sm[1])) return D[sm[1]] + sm[2];
+  if (t.includes(' · ')) { const parts = t.split(' · '), rs = parts.map(p => tr1(p)); if (rs.some(x => x != null)) return parts.map((p, i) => rs[i] ?? p).join(' · '); }
+  if (t.includes(' – ')) { const parts = t.split(' – '), rs = parts.map(p => tr1(p)); if (rs.every(x => x != null)) return rs.join(' – '); }
+  return null;
+}
+function trStr(raw){
+  const t = raw.trim(); if (!t || !/[A-Za-zÄÖÜäöüß]/.test(t)) return raw;
+  const out = tr1(t); if (out == null || out === t) return raw;
+  return raw.slice(0, raw.indexOf(t)) + out + raw.slice(raw.indexOf(t) + t.length);
+}
+function trText(n){ const v = n.nodeValue; if (!v) return; const r = trStr(v); if (r !== v) n.nodeValue = r; }
+function trNode(n){
+  if (!n) return;
+  if (n.nodeType === 3) { if (!n.parentElement || !n.parentElement.closest('textarea,script,style,.no-tr')) trText(n); return; }
+  if (n.nodeType !== 1 || n.closest('script,style,.no-tr')) return;
+  const els = [n, ...n.querySelectorAll('[placeholder],[title],[aria-label]')];
+  els.forEach(el => ['placeholder', 'title', 'aria-label'].forEach(a => { const v = el.getAttribute && el.getAttribute(a); if (v) { const r = trStr(v); if (r !== v) el.setAttribute(a, r); } }));
+  const w = document.createTreeWalker(n, NodeFilter.SHOW_TEXT, { acceptNode: x => x.parentElement && x.parentElement.closest('textarea,script,style,.no-tr') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
+  const list = []; while (w.nextNode()) list.push(w.currentNode);
+  list.forEach(trText);
+}
+new MutationObserver(muts => {
+  if (LANG !== 'en') return;
+  for (const m of muts) { if (m.type === 'characterData') trText(m.target); else m.addedNodes.forEach(trNode); if (m.type === 'attributes') trNode(m.target); }
+}).observe(document.body, {subtree: true, childList: true, characterData: true});
+function langPicker(){
+  const cur = langSetting();
+  return `<label>Sprache / Language</label><div class="tabs-sub">${[['auto','Automatisch'],['de','Deutsch'],['en','English']].map(([k, l]) => `<button type="button" data-lp-lang="${k}" class="${cur === k ? 'on' : ''}">${l}</button>`).join('')}</div>`;
+}
+
 /* ---------- modal forms ---------- */
 let editing = null;
 function openModal(html){ $('#modal').innerHTML = html; $('#scrim').classList.add('open'); setTimeout(()=>{ const f = $('#modal input[type=text], #modal textarea'); f && f.focus(); }, 30); }
@@ -1362,7 +1605,7 @@ function submitForm(fd){
 
 /* ---------- events ---------- */
 function refreshDesign(){ appliedKey = ''; render(); $('#modal').innerHTML = designPicker(); }
-const CLICK_SEL = '[data-tab],[data-new],[data-edit],[data-toggle-task],[data-toggle-habit],[data-sel],[data-cal],[data-tf],[data-subtoggle],[data-sub-add],[data-sub-del],[data-redeem],[data-calview],[data-calnav],[data-dayopen],[data-focus-open],[data-focus-stop],[data-fdur],[data-notif-open],[data-notif-test],[data-ics-open],[data-fm],[data-fset],[data-fcat],[data-budget-open],[data-deposit],[data-dep],[data-cat],[data-emoji],[data-lp-bg],[data-lp-theme],[data-lp-acc],[data-bgmenu],[data-accmenu],[data-close],[data-lvlclose],[data-auth-mode],[data-auth-local],[data-login],[data-logout],[data-migrate],[data-import-open],[data-export],[data-export-dl],[data-copy-export],[data-copy],[data-delacc-open],#delBtn,#clearDone';
+const CLICK_SEL = '[data-tab],[data-new],[data-edit],[data-toggle-task],[data-toggle-habit],[data-sel],[data-cal],[data-tf],[data-subtoggle],[data-sub-add],[data-sub-del],[data-redeem],[data-calview],[data-calnav],[data-dayopen],[data-focus-open],[data-focus-stop],[data-fdur],[data-notif-open],[data-notif-test],[data-ics-open],[data-fm],[data-fset],[data-fcat],[data-budget-open],[data-deposit],[data-dep],[data-cat],[data-emoji],[data-lp-bg],[data-lp-theme],[data-lp-acc],[data-lp-lang],[data-bgmenu],[data-accmenu],[data-close],[data-lvlclose],[data-auth-mode],[data-auth-local],[data-login],[data-logout],[data-migrate],[data-import-open],[data-export],[data-export-dl],[data-copy-export],[data-copy],[data-delacc-open],#delBtn,#clearDone';
 document.addEventListener('click', e => {
   const t = e.target.closest(CLICK_SEL);
   if (!t || t === document.body || t === document.documentElement) { if (e.target === $('#scrim')) closeModal(); return; }
@@ -1416,6 +1659,7 @@ document.addEventListener('click', e => {
   if (t.dataset.cat) { editing.cat = t.dataset.cat; document.querySelectorAll('.cats button').forEach(b=>b.classList.toggle('on', b===t)); return; }
   if (t.dataset.lpTheme) { const v = t.dataset.lpTheme; if (v === 'quest' || v === 'pastel') { theme = v; setSetting({theme}); refreshDesign(); } return; }
   if (t.dataset.lpAcc) { const v = t.dataset.lpAcc; if (ACCS.some(a => a[0] === v)) { accent = v; setSetting({accent}); refreshDesign(); } return; }
+  if (t.dataset.lpLang) { const v = t.dataset.lpLang; if (['auto','de','en'].includes(v)) { setSetting({lang: v}); try { localStorage.setItem('lebensplaner.lang', v); } catch(_) {} applyLang(); refreshDesign(); setStatus($('#status').textContent); } return; }
   if (t.dataset.lpBg) { const v = t.dataset.lpBg; if (BGS.some(x => x[0] === v)) { currentBg = v; setSetting({bg: currentBg}); refreshDesign(); } return; }
   if (t.hasAttribute('data-bgmenu')) { editing = null; openModal(designPicker()); return; }
   if (t.dataset.emoji) { editing.emoji = t.dataset.emoji; document.querySelectorAll('.emojis button').forEach(b=>b.classList.toggle('on', b===t)); return; }
