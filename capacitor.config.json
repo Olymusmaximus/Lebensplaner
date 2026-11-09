@@ -7,6 +7,10 @@
     "SystemBars": {
       "insetsHandling": "css",
       "style": "DARK"
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_lebensplaner",
+      "iconColor": "#F2B544"
     }
   }
 }

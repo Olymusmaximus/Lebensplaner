@@ -11,6 +11,17 @@ if (!existsSync(RES)) throw new Error('Android-Projekt fehlt – zuerst "npx cap
 cpSync('android-res', RES, { recursive: true });
 console.log('✔ Icons und Startbild kopiert');
 
+// 1b) Benachrichtigungs-Berechtigung (Android 13+)
+const MAN = 'android/app/src/main/AndroidManifest.xml';
+if (existsSync(MAN)) {
+  let m = readFileSync(MAN, 'utf8');
+  if (!m.includes('android.permission.POST_NOTIFICATIONS')) {
+    m = m.replace(/<\/manifest>\s*$/, '    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />\n</manifest>\n');
+    writeFileSync(MAN, m);
+  }
+  console.log('✔ Benachrichtigungen erlaubt');
+}
+
 // 2) Version + Signatur
 const run = parseInt(process.env.GITHUB_RUN_NUMBER || '1', 10);
 const groovy = 'android/app/build.gradle', kts = 'android/app/build.gradle.kts';

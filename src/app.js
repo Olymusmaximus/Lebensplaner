@@ -10,6 +10,7 @@ import {
 } from 'firebase/firestore';
 import * as CapCore from '@capacitor/core';
 import { App as CapApp } from '@capacitor/app';
+import { LocalNotifications } from '@capacitor/local-notifications';
 import { firebaseConfig, WEB_URL, APK_URL } from './config.js';
 
 const IS_NATIVE = !!(CapCore.Capacitor && CapCore.Capacitor.isNativePlatform && CapCore.Capacitor.isNativePlatform());
@@ -24,10 +25,11 @@ const parse = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y
 const addDays = (d,n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
 const today = () => ymd(new Date());
 const newId = p => p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
-const MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
-const WD = ['Mo','Di','Mi','Do','Fr','Sa','So'];
-const fmtLong = s => parse(s).toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});
-const fmtShort = s => parse(s).toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'short'});
+let MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+let WD = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+let LOCALE = 'de-DE';
+const fmtLong = s => parse(s).toLocaleDateString(LOCALE,{weekday:'long',day:'numeric',month:'long'});
+const fmtShort = s => parse(s).toLocaleDateString(LOCALE,{weekday:'short',day:'numeric',month:'short'});
 const CATS = {arbeit:'Arbeit',privat:'Privat',gesundheit:'Gesundheit',familie:'Familie',sonstiges:'Sonstiges'};
 const catColor = c => `var(--c-${CATS[c]?c:'sonstiges'})`;
 const svg = d => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
@@ -49,6 +51,11 @@ const QI = {
   design: svg('<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>'),
   logo: svg('<path d="M12 2l9 10-9 10-9-10z"/><path d="M12 7.2l4.4 4.8-4.4 4.8-4.4-4.8z"/>'),
   user: svg('<circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4.2 4-6.5 8-6.5s7.2 2.3 8 6.5"/>'),
+  coin: svg('<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5"/><path d="M12 9.5v5"/>'),
+  gift: svg('<rect x="3.5" y="8.5" width="17" height="4" rx="1"/><path d="M5 12.5v8h14v-8M12 8.5v12"/><path d="M12 8.5C10.5 5 7 4.5 7 6.8 7 8.5 12 8.5 12 8.5zM12 8.5c1.5-3.5 5-4 5-1.7 0 1.7-5 1.7-5 1.7z"/>'),
+  trophy: svg('<path d="M7.5 4h9v5a4.5 4.5 0 0 1-9 0z"/><path d="M7.5 6H4.5a3 3 0 0 0 3 4M16.5 6h3a3 3 0 0 1-3 4M12 13.5V17M8.5 20.5h7M9.5 17h5v3.5h-5z"/>'),
+  timer: svg('<circle cx="12" cy="13.5" r="7.5"/><path d="M12 13.5V9.5M9.5 2.5h5M18.5 6.5l1.5-1.5"/>'),
+  bell: svg('<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>'),
   spark: svg('<path d="M12 3l1.8 5.6L19.5 10l-5.7 1.6L12 17l-1.8-5.4L4.5 10l5.7-1.4z"/>')
 };
 const QHAB = {
@@ -106,7 +113,7 @@ const TXT = {
 let items = new Map();
 let backend = 'none';          // 'none' (lädt) | 'auth' (Anmeldeseite) | 'local' | 'cloud'
 let fb = { app: null, auth: null, db: null, user: null, unsub: null };
-let ui = { tab: 'heute', calMonth: null, sel: today(), taskFilter: 'offen' };
+let ui = { tab: 'heute', calMonth: null, sel: today(), taskFilter: 'offen', calView: 'month' };
 let theme = 'quest', accent = 'gold', currentBg = 'traum';
 try {
   const t = localStorage.getItem('lebensplaner.tab'); if (t && TABS.includes(t)) ui.tab = t;
@@ -309,9 +316,15 @@ function accountMenu(){
       ${backend === 'cloud' ? '<button type="button" class="btn" data-logout>Abmelden</button>' : (FB_READY ? '<button type="button" class="btn primary" data-login>Anmelden / Konto erstellen</button>' : '')}
     </div>
     ${devices ? `<label style="margin-top:16px">Andere Geräte</label>${devices}` : ''}
+    <label style="margin-top:16px">Einstellungen</label>
+    <div class="row" style="flex-wrap:wrap">
+      <button type="button" class="btn" data-notif-open>${q ? QI.bell : '🔔'} Erinnerungen</button>
+      <button type="button" class="btn" data-tab="profil" data-close-after>${q ? QI.trophy : '🏆'} Profil & Erfolge</button>
+    </div>
     <label style="margin-top:16px">Daten</label>
     <div class="row" style="flex-wrap:wrap">
       <button type="button" class="btn" data-import-open>Importieren</button>
+      <button type="button" class="btn" data-ics-open>Kalender (.ics) importieren</button>
       <button type="button" class="btn" data-export>Exportieren</button>
     </div>
     <div id="dataArea"></div>
@@ -342,7 +355,7 @@ function parseImport(text){
   let data = JSON.parse(text);
   if (data && !Array.isArray(data) && Array.isArray(data.items)) data = data.items;
   if (!Array.isArray(data)) throw new Error('format');
-  const ok = ['event','task','habit','note','settings','txn','recurring','goal'];
+  const ok = ['event','task','habit','note','settings','txn','recurring','goal','reward'];
   return data.map(x => (x && x.data && x.id && !x.kind) ? {...x.data, id: x.id} : x)
              .filter(x => x && typeof x === 'object' && typeof x.id === 'string' && ok.includes(x.kind));
 }
@@ -392,7 +405,8 @@ async function copyText(text, btn){
 function put(item){ items.set(item.id, item); render(); persist(item); }
 function removeItem(id, noBank){
   const it = items.get(id); if (!it) return;
-  if (!noBank) { if (it.kind === 'task' && it.done) bankXP(taskXP(it)); if (it.kind === 'habit') bankXP(habitXP(it)); }
+  if (!noBank) { if (it.kind === 'task' && it.done) { bankXP(taskXP(it)); setSetting({questsBank: (+(S().questsBank || 0)) + 1}); } if (it.kind === 'habit') bankXP(habitXP(it)); }
+  if (it.kind === 'task' && (it.hist || []).length) setSetting({questsBank: (+(S().questsBank || 0)) + it.hist.length});
   items.delete(id); render(); persist(it, true);
 }
 function occursOn(ev, d){
@@ -427,6 +441,7 @@ function toggleHabit(h, d){
   reward(before, adding ? XP_HABIT : -XP_HABIT);
 }
 function toggleTask(t){
+  if (t.repeat && t.repeat !== 'none' && !t.done) return completeRepeating(t);
   const before = levelInfo(totalXP()).lvl;
   put({...t, done: !t.done, doneAt: !t.done ? Date.now() : null});
   reward(before, !t.done ? taskXP(t) : -taskXP(t));
@@ -444,7 +459,8 @@ function render(){
   renderNav();
   const m = $('#main');
   if (backend === 'none') { m.innerHTML = `<div class="card empty">${T().empty.loading}</div>`; return; }
-  m.innerHTML = ({heute:viewToday,kalender:viewCalendar,aufgaben:viewTasks,gewohnheiten:viewHabits,finanzen:viewFinance,notizen:viewNotes})[ui.tab]();
+  m.innerHTML = (({heute:viewToday,kalender:viewCalendar,aufgaben:viewTasks,gewohnheiten:viewHabits,finanzen:viewFinance,notizen:viewNotes,profil:viewProfile})[ui.tab] || viewToday)();
+  afterRender();
 }
 
 function eventRow(e){
@@ -464,9 +480,12 @@ function taskRow(t){
   let pr = '';
   if (Q()) { if (!t.done) pr = `<span class="pill ${t.prio==='hoch'?'hoch':''}">${t.prio==='hoch'?'★ ':''}+${taskXP(t)} XP</span>`; }
   else if (t.prio === 'hoch') pr = '<span class="pill hoch">wichtig</span>';
+  const subs = t.subs || [], subDone = subs.filter(x => x.d).length;
+  if (subs.length && !t.done) pr = `<span class="pill">${subDone}/${subs.length}</span>` + pr;
+  if (t.repeat && t.repeat !== 'none') pr = `<span class="pill" title="${TREPEAT[t.repeat] || ''}">↻</span>` + pr;
   return `<div class="item ${t.done?'done':''}" data-edit="${t.id}">
     <button class="chk ${t.done?'on':''}" data-toggle-task="${t.id}" aria-label="erledigt">${t.done?ICON.check:''}</button>
-    <div class="grow"><div class="t">${esc(t.title)}</div>${t.note?`<div class="s">${esc(t.note)}</div>`:''}</div>${pr}${due}</div>`;
+    <div class="grow"><div class="t">${esc(t.title)}</div>${t.note?`<div class="s">${esc(t.note)}</div>`:''}${subsBlock(t)}</div>${pr}${due}</div>`;
 }
 const dayIdx = td => Math.floor((parse(td) - new Date(2026,0,1)) / 864e5);
 
@@ -477,7 +496,7 @@ function pastelHero(td, evs, openAll, habits, habitsDone){
     <div class="stickers"><span>🌸</span><span>✨</span><span>🍓</span></div>
     <h1>${greet}!</h1><p>${fmtLong(td)}</p>
     <div class="quote">„${QUOTES[((dayIdx(td) % QUOTES.length) + QUOTES.length) % QUOTES.length]}“</div>
-    <div class="stat"><div><b>${evs.length}</b>Termine heute</div><div><b>${openAll}</b>offene Aufgaben</div><div><b>${habitsDone}/${habits.length}</b>Gewohnheiten</div></div>
+    <div class="stat"><div><b>${evs.length}</b>Termine heute</div><div><b>${openAll}</b>offene Aufgaben</div><div><b>${habitsDone}/${habits.length}</b>Gewohnheiten</div><div class="stat-link" data-tab="profil"><b>🪙 ${coins()}</b>Level ${levelInfo(totalXP()).lvl} · Profil ›</div></div>
     ${habits.length?`<div class="progress" title="Gewohnheiten heute"><i style="width:${Math.round(habitsDone/habits.length*100)}%"></i></div>`:''}
   </div>`;
 }
@@ -487,12 +506,13 @@ function questHero(td, evs, openAll, habits, habitsDone){
   const h = new Date().getHours();
   const greet = h < 5 ? 'Noch wach?' : h < 11 ? 'Guten Morgen' : h < 17 ? 'Willkommen zurück' : 'Guten Abend';
   return `<div class="card qhero">
-    <div class="lvl"><svg class="hex" viewBox="0 0 100 112"><polygon points="50,3 96,29 96,83 50,109 4,83 4,29"/><polygon class="in" points="50,13 87,34 87,78 50,99 13,78 13,34"/></svg><div class="lvl-in"><span>Level</span><b>${L.lvl}</b></div></div>
+    <div class="lvl" data-tab="profil" title="Profil, Shop & Erfolge"><svg class="hex" viewBox="0 0 100 112"><polygon points="50,3 96,29 96,83 50,109 4,83 4,29"/><polygon class="in" points="50,13 87,34 87,78 50,99 13,78 13,34"/></svg><div class="lvl-in"><span>Level</span><b>${L.lvl}</b></div></div>
     <div class="qh-main">
       <div class="qh-k">${greet} · ${fmtLong(td)}</div>
       <h1>${esc(titleFor(L.lvl))}</h1>
       <div class="xpbar"><i style="width:${pct}%"></i></div>
       <div class="xptext"><span>${L.rest} / ${L.need} XP</span><span>noch ${L.need - L.rest} XP bis Level ${L.lvl + 1}</span></div>
+      <div class="qh-links"><button class="btn" data-tab="profil">${QI.coin} ${coins()} Münzen · Profil & Shop</button><button class="btn" data-focus-open>${QI.timer} Fokus</button></div>
     </div>
     <div class="qstats">
       <div><b>${evs.length}</b><span>Termine heute</span></div>
@@ -528,10 +548,11 @@ function viewToday(){
     <div class="card tape t-lav"><div class="sec-h"><h2>${H('week')}</h2></div>
       <div class="list">${upcoming.length ? upcoming.slice(0,8).map(([d,e]) => `<div class="item" data-edit="${e.id}"><div class="time" style="min-width:74px">${fmtShort(d)}</div><span class="dot" style="background:${catColor(e.cat)}"></span><div class="grow"><div class="t">${esc(e.title)}</div><div class="s">${e.start?esc(e.start)+' Uhr':'ganztägig'}</div></div></div>`).join('') : `<div class="empty">${tx.empty.week}</div>`}</div></div>
     ${financeTodayCard()}
+    ${weeklyTodayCard()}
   </div>`;
 }
 
-function viewCalendar(){
+function calMonthView(){
   if (!ui.calMonth) { const s = parse(ui.sel); ui.calMonth = [s.getFullYear(), s.getMonth()]; }
   const [y,m] = ui.calMonth;
   const first = new Date(y,m,1);
@@ -554,7 +575,7 @@ function viewCalendar(){
   const evs = eventsOn(ui.sel);
   const tasks = all('task').filter(t=>t.due===ui.sel).sort(sortTasks);
   return `<div class="cal-layout">
-    <div class="card tape t-pink">
+    <div class="card tape t-pink">${calSwitch()}
       <div class="cal-h"><h2>${MONTHS[m]} ${y}</h2>
         <div class="row"><button class="btn icon" data-cal="-1" aria-label="voriger Monat">‹</button><button class="btn" data-cal="0">Heute</button><button class="btn icon" data-cal="1" aria-label="nächster Monat">›</button></div></div>
       <div class="cal">${cells}</div>
@@ -578,7 +599,7 @@ function viewTasks(){
   if (f==='erledigt') ts = ts.filter(t=>t.done).sort((a,b)=>(b.doneAt||0)-(a.doneAt||0));
   if (f!=='erledigt') ts.sort(sortTasks);
   return `<div class="card tape t-sky" style="margin-top:12px">
-    <div class="sec-h"><h2>${H('tasks')}</h2><button class="btn" data-new="task">${tx.add.details}</button></div>
+    <div class="sec-h"><h2>${H('tasks')}</h2><div class="row"><button class="btn" data-focus-open>${Q() ? QI.timer : '⏱'} Fokus</button><button class="btn" data-new="task">${tx.add.details}</button></div></div>
     <form class="quick" id="quickTask" style="margin-top:10px"><input type="text" id="quickTitle" placeholder="${tx.quick}" autocomplete="off"><button class="btn primary">${tx.add.quickBtn}</button></form>
     <div class="tabs-sub" style="margin-top:12px">${Object.keys(tx.filters).map(k=>`<button data-tf="${k}" class="${f===k?'on':''}">${tx.filters[k]} · ${counts[k]}</button>`).join('')}</div>
     <div class="list">${ts.length ? ts.map(taskRow).join('') : `<div class="empty">${tx.empty.tasks}</div>`}</div>
@@ -686,7 +707,7 @@ function finRow(r, showDate = true){
   const c = fcatOf(r.type, r.cat), td = today();
   const planned = r.date > td;
   return `<div class="item frow" data-edit="${r.id}">
-    ${showDate ? `<div class="time" style="min-width:58px">${parse(r.date).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'})}</div>` : ''}
+    ${showDate ? `<div class="time" style="min-width:58px">${parse(r.date).toLocaleDateString(LOCALE,{day:'2-digit',month:'2-digit'})}</div>` : ''}
     <span class="dot" style="background:${c[2]}"></span>
     <div class="grow"><div class="t">${esc(r.title)}</div><div class="s">${Q() ? '' : c[1] + ' '}${esc(c[0])}${r.rec ? ' · ↻ ' + (INTERVALS[r.interval] || INTERVALS.monthly)[0] : ''}${planned ? ' · geplant' : ''}</div></div>
     <div class="famt ${r.type === 'income' ? 'in' : 'out'}">${r.type === 'income' ? '+' : '−'}${eur(r.amount)}</div></div>`;
@@ -717,7 +738,7 @@ function viewFinance(){
   const recList = recs.length ? recs.map(r => {
     const c = fcatOf(r.type, r.cat), nd = nextDue(r, td), ended = r.until && r.until < td;
     return `<div class="item frow ${ended ? 'done' : ''}" data-edit="${r.id}"><span class="dot" style="background:${c[2]}"></span>
-      <div class="grow"><div class="t">${esc(r.name)}</div><div class="s">${(INTERVALS[r.interval] || INTERVALS.monthly)[0]}${nd ? ' · nächste: ' + fmtShort(nd) : ended ? ' · beendet' : ''}</div></div>
+      <div class="grow"><div class="t">${esc(r.name)}</div><div class="s">${(INTERVALS[r.interval] || INTERVALS.monthly)[0]}${nd ? ' · nächste: ' + fmtShort(nd) : ended ? ' · beendet' : ''}${cancelPill(r)}</div></div>
       <div class="famt ${r.type === 'income' ? 'in' : 'out'}">${r.type === 'income' ? '+' : '−'}${eur(r.amount)}</div></div>`; }).join('')
     : `<div class="empty">Trag hier regelmäßige Zahlungen ein – Miete, Handyvertrag, Versicherungen, Streaming-Abos, Fitnessstudio, aber auch dein Gehalt. Sie erscheinen dann automatisch in jedem Monat.</div>`;
 
@@ -726,7 +747,7 @@ function viewFinance(){
     let rate = '';
     if (g.deadline && !done && g.deadline > td) {
       const months = Math.max(1, (parse(g.deadline).getFullYear() - new Date().getFullYear()) * 12 + parse(g.deadline).getMonth() - new Date().getMonth());
-      rate = ` · ${eur((tgt - sv) / months)} pro Monat bis ${parse(g.deadline).toLocaleDateString('de-DE',{month:'short',year:'numeric'})}`;
+      rate = ` · ${eur((tgt - sv) / months)} pro Monat bis ${parse(g.deadline).toLocaleDateString(LOCALE,{month:'short',year:'numeric'})}`;
     }
     return `<div class="goal ${done ? 'reached' : ''}">
       <div class="goal-top"><div class="grow" data-edit="${g.id}" style="cursor:pointer"><div class="t">${done ? (q ? '★ ' : '🏆 ') : ''}${esc(g.name)}</div><div class="s">${eur(sv)} von ${eur(tgt)}${rate}</div></div>
@@ -755,7 +776,8 @@ function viewFinance(){
       <div class="card tape t-sky"><div class="sec-h"><h2>${FH('finanzen','🧾','Buchungen')}</h2><button class="btn" data-new="txn" data-ftype="expense">+ Neu</button></div>
         <div class="list">${F.rows.length ? F.rows.map(r => finRow(r)).join('') : `<div class="empty">In diesem Monat gibt es noch keine Buchungen.</div>`}</div></div>
       <div class="card tape t-sage"><div class="sec-h"><h2>${FH('goal','🎯','Sparziele')}</h2><button class="btn" data-new="goal">+ Neu</button></div>${goalList}</div>
-    </div>`;
+    </div>
+    <div class="card tape t-butter fin-chart" style="margin-top:22px">${finChart(y, m)}</div>`;
 }
 
 function financeTodayCard(){
@@ -796,6 +818,7 @@ function finForm(kind, it, date, ftype){
     <div class="f2"><div><label>Betrag (€)</label><input type="text" class="amt" name="amount" inputmode="decimal" required autocomplete="off" value="${it ? numDE(it.amount) : ''}" placeholder="0,00"></div>
     <div><label>Wie oft?</label><select name="interval">${Object.entries(INTERVALS).map(([k, v]) => `<option value="${k}" ${(it?.interval || 'monthly') === k ? 'selected' : ''}>${v[0]}</option>`).join('')}</select></div></div>
     <div class="f2"><div><label>Nächste / erste Zahlung</label><input type="date" name="start" required value="${esc(it?.start || date || today())}"></div><div><label>Endet am (optional)</label><input type="date" name="until" value="${esc(it?.until)}"></div></div>
+    <label>Kündbar bis (optional) – Erinnerung 7 Tage vorher</label><input type="date" name="cancelBy" value="${esc(it?.cancelBy)}">
     <label>Kategorie</label><div class="cats" id="fcats">${fcatButtons()}</div>
     <label>Notiz</label><input type="text" name="note" value="${esc(it?.note)}" placeholder="z. B. Vertragsnummer, kündbar bis …">${act}</form>`;
   if (kind === 'goal') return `<form id="f"><h2>${title('goal','🎯', it ? 'Sparziel bearbeiten' : 'Neues Sparziel')}</h2>
@@ -813,7 +836,7 @@ function finSubmit(fd){
     const a = parseAmt(g('amount'));
     if (!(a > 0)) { toast('Bitte einen gültigen Betrag eingeben'); return; }
     if (kind === 'txn') Object.assign(base, {type: editing.ftype, amount: a, cat: editing.fcat, date: g('date') || today(), note: g('note')});
-    else Object.assign(base, {type: editing.ftype, amount: a, cat: editing.fcat, name: g('name'), interval: g('interval') || 'monthly', start: g('start') || today(), until: g('until'), note: g('note'), active: true});
+    else Object.assign(base, {type: editing.ftype, amount: a, cat: editing.fcat, name: g('name'), interval: g('interval') || 'monthly', start: g('start') || today(), until: g('until'), cancelBy: g('cancelBy'), note: g('note'), active: true});
   }
   if (kind === 'goal') {
     const tg = parseAmt(g('target')); if (!(tg > 0)) { toast('Bitte einen gültigen Zielbetrag eingeben'); return; }
@@ -857,6 +880,431 @@ function doDeposit(dir){
   else toast(dir === 'in' ? eur(a) + ' eingezahlt' : eur(a) + ' abgehoben');
 }
 
+/* ---------- Quests: Wiederholung & Unteraufgaben ---------- */
+const TREPEAT = {none:'Nie', daily:'Täglich', weekdays:'Werktags (Mo–Fr)', weekly:'Wöchentlich', monthly:'Monatlich'};
+function hashStr(s){ let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return Math.abs(h); }
+function advanceDue(rep, ds){
+  const d = parse(ds);
+  if (rep === 'daily') return ymd(addDays(d, 1));
+  if (rep === 'weekdays') { let x = addDays(d, 1); while (x.getDay() === 0 || x.getDay() === 6) x = addDays(x, 1); return ymd(x); }
+  if (rep === 'weekly') return ymd(addDays(d, 7));
+  if (rep === 'monthly') { const n = new Date(d.getFullYear(), d.getMonth() + 1, 1); return ymd(new Date(n.getFullYear(), n.getMonth(), Math.min(d.getDate(), daysInMonth(n.getFullYear(), n.getMonth())))); }
+  return ymd(addDays(d, 1));
+}
+function completeRepeating(t){
+  const td = today(), before = levelInfo(totalXP()).lvl, xp = taskXP(t);
+  let nd = t.due && t.due > td ? t.due : (t.due || td);
+  do { nd = advanceDue(t.repeat, nd); } while (nd <= td);
+  bankXP(xp);
+  put({...t, due: nd, hist: [...(t.hist || []), td].slice(-150), subs: (t.subs || []).map(s => ({...s, d: false}))});
+  reward(before, xp);
+  toast(`${Q() ? '+' + xp + ' XP · ' : 'Erledigt! '}nächstes Mal ${fmtShort(nd)}`);
+}
+function toggleSub(tid, sid){
+  const t = items.get(tid); if (!t) return;
+  const subs = (t.subs || []).map(s => s.id === sid ? {...s, d: !s.d} : s);
+  put({...t, subs});
+  if (subs.length && subs.every(s => s.d) && !t.done) toast('Alle Unteraufgaben erledigt – jetzt die Quest abhaken!');
+}
+function subsBlock(t){
+  const subs = t.subs || []; if (!subs.length || t.done) return '';
+  return `<div class="subs">${subs.slice(0, 8).map(s => `<button type="button" class="sub ${s.d ? 'on' : ''}" data-subtoggle="${t.id}|${s.id}"><i>${s.d ? ICON.check : ''}</i><span>${esc(s.t)}</span></button>`).join('')}${subs.length > 8 ? `<span class="s">+${subs.length - 8} weitere</span>` : ''}</div>`;
+}
+function syncSubsFromDom(){
+  if (!editing || !editing.subs) return;
+  document.querySelectorAll('#subsBox .sub-in').forEach(inp => { const i = +inp.dataset.i; if (editing.subs[i]) editing.subs[i].t = inp.value; });
+}
+function subsEditor(){
+  return (editing.subs || []).map((s, i) => `<div class="sub-ed"><input type="text" class="sub-in" data-i="${i}" value="${esc(s.t)}"><button type="button" class="btn icon" data-sub-del="${i}" aria-label="entfernen">✕</button></div>`).join('');
+}
+function addSub(){
+  const inp = $('#subNew'); if (!inp) return; const v = inp.value.trim(); if (!v) return;
+  syncSubsFromDom(); editing.subs.push({id: newId('s'), t: v, d: false});
+  $('#subsBox').innerHTML = subsEditor(); inp.value = ''; inp.focus();
+}
+
+/* ---------- Münzen & Belohnungs-Shop ---------- */
+const coinsEarned = () => Math.floor(totalXP() / 10);
+const coins = () => Math.max(0, coinsEarned() - (+(S().coinsSpent || 0)));
+const COIN = () => Q() ? `<span class="coin">${QI.coin}</span>` : '🪙';
+const REWARD_EMOJIS = ['🍕','🎮','🎬','🛍️','☕','🍰','🛁','😴','📱','🎧','✈️','🎁'];
+function rewardForm(it){
+  editing = {kind: 'reward', id: it ? it.id : null, emoji: it?.emoji || '🎁', confirmDel: false};
+  const del = it ? '<button type="button" class="btn danger" id="delBtn">Löschen</button>' : '<span></span>';
+  return `<form id="f"><h2>${Q() ? QI.gift + '<span>' + (it ? 'Belohnung bearbeiten' : 'Neue Belohnung') + '</span>' : '🎁 ' + (it ? 'Belohnung bearbeiten' : 'Neue Belohnung')}</h2>
+    <p class="hint">Was gönnst du dir, wenn du genug Münzen gesammelt hast? Für jede 10 XP bekommst du 1 Münze.</p>
+    <label>Belohnung</label><input type="text" name="name" required value="${esc(it?.name)}" placeholder="z. B. Pizza bestellen, Gaming-Abend, Kino">
+    <label>Preis in Münzen</label><input type="text" name="cost" inputmode="numeric" required value="${it ? +it.cost : ''}" placeholder="z. B. 30">
+    <label>Symbol</label><div class="emojis">${REWARD_EMOJIS.map(e => `<button type="button" data-emoji="${e}" class="${editing.emoji === e ? 'on' : ''}">${e}</button>`).join('')}</div>
+    <div class="actions">${del}<div class="row"><button type="button" class="btn" data-close>Abbrechen</button><button class="btn primary">Speichern</button></div></div></form>`;
+}
+function redeem(id, btn){
+  const r = items.get(id); if (!r) return;
+  const cost = Math.max(1, Math.round(+r.cost || 0));
+  if (coins() < cost) { toast(`Dir fehlen noch ${cost - coins()} Münzen`); return; }
+  if (!btn.dataset.sure) { btn.dataset.sure = '1'; btn.textContent = `Sicher? −${cost}`; return; }
+  setSetting({coinsSpent: (+(S().coinsSpent || 0)) + cost, redeemLog: [{n: r.name, c: cost, e: r.emoji || '🎁', d: today()}, ...(S().redeemLog || [])].slice(0, 30)});
+  render(); toast(`Gönn dir: ${r.name}! ${r.emoji || '🎁'}`);
+}
+
+/* ---------- Erfolge ---------- */
+function questsDoneCount(){ return all('task').filter(t => t.done).length + all('task').reduce((s, t) => s + (t.hist || []).length, 0) + (+(S().questsBank || 0)); }
+function bestStreakEver(){
+  let best = 0;
+  all('habit').forEach(h => { const ds = Object.keys(h.done || {}).sort(); let run = 0, prev = null;
+    ds.forEach(d => { run = (prev && ymd(addDays(parse(prev), 1)) === d) ? run + 1 : 1; prev = d; best = Math.max(best, run); }); });
+  return best;
+}
+function lastMonthBudgetKept(){
+  const b = S().budgets || {}, keys = Object.keys(b); if (!keys.length) return false;
+  const d = new Date(), lm = new Date(d.getFullYear(), d.getMonth() - 1, 1), F = monthFin(lm.getFullYear(), lm.getMonth());
+  return F.exp > 0 && keys.every(k => (F.byCat[k] || 0) <= +b[k]);
+}
+function achStats(){
+  return { quests: questsDoneCount(), streak: bestStreakEver(), level: levelInfo(totalXP()).lvl,
+    goals: all('goal').filter(g => +g.target && +g.saved >= +g.target).length, events: all('event').length,
+    focus: +(S().focusCount || 0), budget: lastMonthBudgetKept() ? 1 : 0, redeemed: (S().redeemLog || []).length,
+    routines: all('habit').reduce((s, h) => s + Object.keys(h.done || {}).length, 0) };
+}
+const ACH = [
+  ['q1',  '🗡️', 'Erste Quest',       'Schließe deine erste Quest ab',          'quests', 1],
+  ['q10', '⚔️', 'Quest-Jäger',       'Schließe 10 Quests ab',                  'quests', 10],
+  ['q50', '🏹', 'Unermüdlich',       'Schließe 50 Quests ab',                  'quests', 50],
+  ['q100','👑', 'Legendär fleißig',  'Schließe 100 Quests ab',                 'quests', 100],
+  ['s3',  '🔥', 'Dranbleiber',       'Halte eine Routine 3 Tage am Stück',     'streak', 3],
+  ['s7',  '💪', 'Eine Woche stark',  'Halte eine Routine 7 Tage am Stück',     'streak', 7],
+  ['s30', '🛡️', 'Eiserner Wille',    'Halte eine Routine 30 Tage am Stück',    'streak', 30],
+  ['r100','🌱', 'Gewohnheitstier',   'Hake 100 Mal eine Routine ab',           'routines', 100],
+  ['l5',  '⭐', 'Aufsteiger',        'Erreiche Level 5',                       'level', 5],
+  ['l10', '🌟', 'Veteran',           'Erreiche Level 10',                      'level', 10],
+  ['l20', '💫', 'Champion',          'Erreiche Level 20',                      'level', 20],
+  ['e10', '📅', 'Gut organisiert',   'Trage 10 Termine ein',                   'events', 10],
+  ['f1',  '⏱️', 'Erster Fokus',      'Schließe eine Fokus-Runde ab',           'focus', 1],
+  ['f10', '🧠', 'Tiefer Fokus',      'Schließe 10 Fokus-Runden ab',            'focus', 10],
+  ['g1',  '🐷', 'Sparfuchs',         'Erreiche dein erstes Sparziel',          'goals', 1],
+  ['b1',  '📊', 'Budget-Meister',    'Halte einen ganzen Monat alle Budgets ein', 'budget', 1],
+  ['w1',  '🎁', 'Gönn dir',          'Löse deine erste Belohnung ein',         'redeemed', 1]
+];
+let achReady = false;
+function checkAchievements(){
+  if (!achReady || (backend !== 'local' && backend !== 'cloud')) return;
+  const st = achStats(), have = S().ach || {};
+  const fresh = ACH.filter(a => st[a[4]] >= a[5] && !have[a[0]]).map(a => a[0]);
+  if (!S().achInit) { const upd = {...have}; fresh.forEach(id => upd[id] = today()); setSetting({ach: upd, achInit: true}); return; }
+  if (!fresh.length) return;
+  const upd = {...have}; fresh.forEach(id => upd[id] = today());
+  setSetting({ach: upd});
+  const a = ACH.find(x => x[0] === fresh[fresh.length - 1]);
+  setTimeout(() => showAchievement(a), 600);
+}
+function showAchievement(a){
+  const el = $('#lvlup');
+  el.innerHTML = `<div class="lu-in"><div class="lu-rings"><i></i><i></i><i></i></div><div class="lu-k">Erfolg freigeschaltet</div><div class="lu-n ach-n">${a[1]}</div><div class="lu-t">${esc(a[2])}</div><div class="lu-h">${esc(a[3])}</div></div>`;
+  el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+  clearTimeout(showLevelUp._t); showLevelUp._t = setTimeout(() => el.classList.remove('show'), 4200);
+}
+
+/* ---------- Wochenrückblick ---------- */
+function weekRange(offset){ const d = new Date(), mon = addDays(d, -((d.getDay() + 6) % 7) + offset * 7); return [ymd(mon), ymd(addDays(mon, 6))]; }
+function weekStats(offset){
+  const [a, b] = weekRange(offset), end = offset === 0 ? today() : b, inR = ds => ds >= a && ds <= end;
+  const quests = all('task').filter(t => t.done && t.doneAt && inR(ymd(new Date(t.doneAt)))).length + all('task').reduce((s, t) => s + (t.hist || []).filter(inR).length, 0);
+  const hs = all('habit'), days = Math.round((parse(end) - parse(a)) / 864e5) + 1;
+  const checks = hs.reduce((s, h) => s + Object.keys(h.done || {}).filter(inR).length, 0);
+  const rate = hs.length ? Math.round(checks / (hs.length * days) * 100) : null;
+  const spent = finRowsForDates(a, end).filter(r => r.type !== 'income').reduce((s, r) => s + r.amount, 0);
+  let events = 0; for (let i = 0; i < days; i++) events += eventsOn(ymd(addDays(parse(a), i))).length;
+  const focus = (S().focusLog || []).filter(inR).length;
+  return {a, b, quests, rate, spent, events, focus, checks};
+}
+function weekReviewHTML(){
+  const w = weekStats(0), l = weekStats(-1);
+  const cmp = (x, y, lowerBetter) => { if (y == null || x == null || x === y) return '<span class="wdiff">±0</span>'; const up = x > y, good = lowerBetter ? !up : up; return `<span class="wdiff ${good ? 'good' : 'bad'}">${up ? '▲' : '▼'}</span>`; };
+  const rows = [
+    ['Quests erledigt', w.quests, l.quests, false, v => v],
+    ['Routinen-Quote', w.rate, l.rate, false, v => v == null ? '–' : v + ' %'],
+    ['Ausgaben', w.spent, l.spent, true, v => eur(v)],
+    ['Termine', w.events, l.events, null, v => v],
+    ['Fokus-Runden', w.focus, l.focus, false, v => v]
+  ];
+  return `<div class="wr-range">${fmtShort(w.a)} – ${fmtShort(w.b)} · im Vergleich zur Vorwoche</div>
+    <div class="wr">${rows.map(([lbl, x, y, lb, f]) => `<div><span>${lbl}</span><b>${f(x)}</b>${lb === null ? '' : cmp(x, y, lb)}<small>Vorwoche: ${f(y)}</small></div>`).join('')}</div>`;
+}
+function weeklyTodayCard(){
+  const dow = new Date().getDay(); if (dow !== 0 && dow !== 1) return '';
+  const w = weekStats(dow === 1 ? -1 : 0);
+  return `<div class="card tape t-sky"><div class="sec-h"><h2>${FH('chart', '📈', dow === 1 ? 'Deine letzte Woche' : 'Dein Wochenrückblick')}</h2><button class="btn" data-tab="profil">Ansehen</button></div>
+    <div class="fin-mini"><div><span>Quests</span><b>${w.quests}</b></div><div><span>Routinen</span><b>${w.rate == null ? '–' : w.rate + ' %'}</b></div><div><span>Ausgaben</span><b>${eur(w.spent)}</b></div></div></div>`;
+}
+
+/* ---------- Profil ---------- */
+function viewProfile(){
+  const q = Q(), L = levelInfo(totalXP()), pct = Math.round(L.rest / L.need * 100), c = coins();
+  const st = achStats(), have = S().ach || {};
+  const rewards = all('reward').slice().sort((a, b) => (+a.cost || 0) - (+b.cost || 0));
+  const log = (S().redeemLog || []).slice(0, 5);
+  const unlocked = ACH.filter(a => have[a[0]] || st[a[4]] >= a[5]).length;
+  return `<div class="card tape t-lav prof-head" style="margin-top:12px">
+      <div class="prof-top">
+        <div><div class="qh-k">${q ? 'Dein Profil' : '🏆 Dein Profil'}</div><h1>${esc(titleFor(L.lvl))} · Level ${L.lvl}</h1>
+          <div class="xpbar"><i style="width:${pct}%"></i></div>
+          <div class="xptext"><span>${L.rest} / ${L.need} XP</span><span>noch ${L.need - L.rest} XP bis Level ${L.lvl + 1}</span></div></div>
+        <div class="coins-big">${COIN()}<b>${c}</b><span>Münzen</span></div>
+      </div>
+      <div class="fin-actions"><button class="btn primary" data-focus-open>${q ? QI.timer : '⏱'} Fokus-Timer</button><button class="btn" data-new="reward">+ Belohnung</button><button class="btn" data-tab="heute">Zurück zur Übersicht</button></div>
+    </div>
+    <div class="grid g2">
+      <div class="card tape t-sky"><div class="sec-h"><h2>${FH('chart', '📈', 'Wochenrückblick')}</h2></div>${weekReviewHTML()}</div>
+      <div class="card tape t-peach"><div class="sec-h"><h2>${FH('gift', '🎁', 'Belohnungs-Shop')}</h2><button class="btn" data-new="reward">+ Neu</button></div>
+        <div class="shop">${rewards.length ? rewards.map(r => { const cost = Math.max(1, Math.round(+r.cost || 0)), ok = c >= cost;
+          return `<div class="item shop-it"><span class="shop-e">${esc(r.emoji || '🎁')}</span><div class="grow" data-edit="${r.id}" style="cursor:pointer"><div class="t">${esc(r.name)}</div><div class="s">${cost} Münzen${ok ? '' : ' · noch ' + (cost - c)}</div></div><button class="btn ${ok ? 'primary' : ''}" data-redeem="${r.id}" ${ok ? '' : 'disabled'}>Einlösen</button></div>`; }).join('')
+          : '<div class="empty">Leg Belohnungen an, die du dir mit Münzen „kaufen“ kannst – zum Beispiel Pizza bestellen, einen Gaming-Abend oder ein neues Spiel. Für jede 10 XP bekommst du 1 Münze.</div>'}</div>
+        ${log.length ? `<div class="s" style="margin-top:10px;font-weight:700">Zuletzt eingelöst</div><div class="redeemed">${log.map(x => `<span class="pill">${esc(x.e || '🎁')} ${esc(x.n)} · ${parse(x.d).toLocaleDateString(LOCALE, {day:'2-digit', month:'2-digit'})}</span>`).join('')}</div>` : ''}</div>
+      <div class="card tape t-butter ach-card"><div class="sec-h"><h2>${FH('trophy', '🏆', 'Erfolge')}</h2><span class="pill">${unlocked} / ${ACH.length}</span></div>
+        <div class="ach-grid">${ACH.map(a => { const v = st[a[4]], ok = have[a[0]] || v >= a[5];
+          return `<div class="ach ${ok ? 'on' : ''}" title="${esc(a[3])}"><div class="ach-i">${a[1]}</div><div class="ach-t">${esc(a[2])}</div><div class="ach-d">${esc(a[3])}</div>${ok ? `<div class="ach-ok">${have[a[0]] ? 'seit ' + parse(have[a[0]]).toLocaleDateString(LOCALE, {day:'2-digit', month:'2-digit', year:'2-digit'}) : 'freigeschaltet'}</div>` : `<div class="cbar-track"><i class="cbar-fill tot" style="width:${Math.min(100, (+v || 0) / a[5] * 100).toFixed(0)}%"></i></div><div class="ach-p">${Math.min(+v || 0, a[5])} / ${a[5]}</div>`}</div>`; }).join('')}</div></div>
+    </div>`;
+}
+
+/* ---------- Kalender: Woche & Tag ---------- */
+function calSwitch(){ return `<div class="tabs-sub calsw">${[['month','Monat'],['week','Woche'],['day','Tag']].map(([k, l]) => `<button data-calview="${k}" class="${(ui.calView || 'month') === k ? 'on' : ''}">${l}</button>`).join('')}</div>`; }
+function viewCalendar(){ const v = ui.calView || 'month'; return v === 'week' ? calWeekView() : v === 'day' ? calDayView() : calMonthView(); }
+function calWeekView(){
+  const sel = parse(ui.sel), mon = addDays(sel, -((sel.getDay() + 6) % 7)), td = today();
+  const days = [...Array(7)].map((_, i) => ymd(addDays(mon, i)));
+  return `<div class="card tape t-pink">${calSwitch()}
+    <div class="cal-h"><h2>${fmtShort(days[0])} – ${fmtShort(days[6])}</h2><div class="row"><button class="btn icon" data-calnav="-7" aria-label="vorige Woche">‹</button><button class="btn" data-calnav="0">Heute</button><button class="btn icon" data-calnav="7" aria-label="nächste Woche">›</button></div></div>
+    <div class="week">${days.map(ds => { const evs = eventsOn(ds), ts = all('task').filter(t => t.due === ds && !t.done), pays = finRowsForDates(ds, ds);
+      return `<div class="wday ${ds === td ? 'today' : ''}"><div class="wday-h" data-dayopen="${ds}"><b>${WD[(parse(ds).getDay() + 6) % 7]}</b> ${parse(ds).getDate()}.</div><div class="wday-b">
+        ${evs.map(e => `<div class="wev" data-edit="${e.id}" style="--cc:${catColor(e.cat)}"><span>${e.start ? esc(e.start) : 'ganztägig'}</span>${esc(e.title)}</div>`).join('')}
+        ${ts.map(t => `<div class="wev wtask" data-edit="${t.id}"><span>Quest</span>${esc(t.title)}</div>`).join('')}
+        ${pays.map(r => `<div class="wev wpay" data-edit="${r.id}"><span>${r.type === 'income' ? '+' : '−'}${eur(r.amount)}</span>${esc(r.title)}</div>`).join('')}
+        <button class="wadd" data-new="event" data-date="${ds}" aria-label="Termin hinzufügen">+</button></div></div>`; }).join('')}</div></div>`;
+}
+const HH = 48;
+function calDayView(){
+  const ds = ui.sel, evs = eventsOn(ds), td = today(), tx = T();
+  const toMin = s => { const [h, m] = String(s).split(':').map(Number); return (h || 0) * 60 + (m || 0); };
+  const blocks = evs.filter(e => e.start).map(e => { const s = toMin(e.start); let en = e.end ? toMin(e.end) : s + 60; if (en <= s) en = s + 30; return {e, s, en}; }).sort((a, b) => a.s - b.s);
+  const lanes = []; blocks.forEach(b => { let i = lanes.findIndex(l => l <= b.s); if (i < 0) { i = lanes.length; lanes.push(0); } lanes[i] = b.en; b.lane = i; });
+  const nl = Math.max(1, lanes.length);
+  const hours = [...Array(24)].map((_, h) => `<div class="hr" style="top:${h * HH}px"><span>${pad(h)}:00</span></div>`).join('');
+  const now = new Date(), nowLine = ds === td ? `<div class="nowline" style="top:${(now.getHours() * 60 + now.getMinutes()) / 60 * HH}px"></div>` : '';
+  const evHTML = blocks.map(b => `<div class="tblock" data-edit="${b.e.id}" style="top:${b.s / 60 * HH}px;height:${Math.max(24, (b.en - b.s) / 60 * HH - 2)}px;left:calc(54px + (100% - 58px) * ${b.lane / nl});width:calc((100% - 58px) / ${nl} - 3px);--cc:${catColor(b.e.cat)}"><b>${esc(b.e.title)}</b><span>${esc(b.e.start)}${b.e.end ? '–' + esc(b.e.end) : ''}${b.e.place ? ' · ' + esc(b.e.place) : ''}</span></div>`).join('');
+  const allday = evs.filter(e => !e.start), ts = all('task').filter(t => t.due === ds).sort(sortTasks);
+  return `<div class="card tape t-pink">${calSwitch()}
+    <div class="cal-h"><h2>${fmtLong(ds)}</h2><div class="row"><button class="btn icon" data-calnav="-1" aria-label="voriger Tag">‹</button><button class="btn" data-calnav="0">Heute</button><button class="btn icon" data-calnav="1" aria-label="nächster Tag">›</button></div></div>
+    <div class="row" style="margin-bottom:10px;flex-wrap:wrap"><button class="btn primary" data-new="event" data-date="${ds}">${tx.add.event}</button><button class="btn" data-new="task" data-date="${ds}">${tx.add.task}</button></div>
+    ${allday.length ? `<div class="allday">${allday.map(e => `<div class="wev" data-edit="${e.id}" style="--cc:${catColor(e.cat)}"><span>ganztägig</span>${esc(e.title)}</div>`).join('')}</div>` : ''}
+    <div class="tl-wrap" id="tlWrap"><div class="timeline" style="height:${24 * HH}px">${hours}${nowLine}${evHTML}</div></div>
+    ${ts.length ? `<h3 style="font-size:${Q() ? '16px' : '24px'};margin:16px 0 2px">${H('due')}</h3><div class="list">${ts.map(taskRow).join('')}</div>` : ''}
+    ${financeDayList(ds)}</div>`;
+}
+function calNav(v){
+  if (v === 0) ui.sel = today(); else ui.sel = ymd(addDays(parse(ui.sel), v));
+  const d = parse(ui.sel); ui.calMonth = [d.getFullYear(), d.getMonth()]; render();
+}
+
+/* ---------- Kalender-Import (.ics) ---------- */
+function parseICS(text){
+  const lines = String(text).replace(/\r\n/g, '\n').replace(/\n[ \t]/g, '').split('\n');
+  const out = []; let cur = null;
+  const val = l => l.slice(l.indexOf(':') + 1);
+  const unesc = s => s.replace(/\\n/gi, ' ').replace(/\\,/g, ',').replace(/\\;/g, ';').replace(/\\\\/g, '\\').trim();
+  const dt = l => { const params = l.slice(0, l.indexOf(':')), v = val(l).trim();
+    const y = +v.slice(0, 4), mo = +v.slice(4, 6) - 1, d = +v.slice(6, 8);
+    if (/VALUE=DATE(?!-)/i.test(params) || /^\d{8}$/.test(v)) return {date: ymd(new Date(y, mo, d)), time: ''};
+    const h = +v.slice(9, 11), mi = +v.slice(11, 13);
+    const x = /Z$/i.test(v) ? new Date(Date.UTC(y, mo, d, h, mi)) : new Date(y, mo, d, h, mi);
+    return {date: ymd(x), time: pad(x.getHours()) + ':' + pad(x.getMinutes())}; };
+  for (const raw of lines) {
+    const l = raw.trimEnd();
+    if (l === 'BEGIN:VEVENT') cur = {};
+    else if (l === 'END:VEVENT') { if (cur && cur.title && cur.date) out.push(cur); cur = null; }
+    else if (cur && l.includes(':')) {
+      const key = l.split(/[;:]/)[0].toUpperCase();
+      try {
+        if (key === 'SUMMARY') cur.title = unesc(val(l));
+        else if (key === 'LOCATION') cur.place = unesc(val(l));
+        else if (key === 'DESCRIPTION') cur.note = unesc(val(l)).slice(0, 500);
+        else if (key === 'UID') cur.uid = val(l).trim();
+        else if (key === 'DTSTART') { const x = dt(l); cur.date = x.date; cur.start = x.time; }
+        else if (key === 'DTEND') { const x = dt(l); cur.end = x.time; }
+        else if (key === 'RRULE') { const v = val(l), f = (v.match(/FREQ=(\w+)/i) || [])[1], iv = +((v.match(/INTERVAL=(\d+)/i) || [])[1] || 1); if (iv === 1) cur.repeat = ({DAILY:'daily', WEEKLY:'weekly', MONTHLY:'monthly', YEARLY:'yearly'})[(f || '').toUpperCase()] || 'none'; }
+      } catch(e) {}
+    }
+  }
+  const cutoff = ymd(addDays(new Date(), -365));
+  return out.filter(e => e.date >= cutoff || (e.repeat && e.repeat !== 'none')).slice(0, 3000).map(e => ({
+    id: 'ics_' + hashStr(e.uid || (e.title + e.date + (e.start || ''))).toString(36), kind: 'event', title: e.title.slice(0, 200), date: e.date,
+    start: e.start || '', end: e.start ? (e.end || '') : '', place: e.place || '', note: e.note || '', cat: 'sonstiges', repeat: e.repeat || 'none', created: Date.now() }));
+}
+function showICSImport(){
+  const area = $('#dataArea'); if (!area) return;
+  area.innerHTML = `<p class="hint">Exportiere deinen Kalender als <b>.ics</b>-Datei (Outlook: Kalender → Freigeben/Veröffentlichen bzw. „Kalender speichern“; Google Kalender: Einstellungen → Importieren & Exportieren → Exportieren) und wähle sie hier aus.</p>
+    <form id="icsForm"><input type="file" accept=".ics,text/calendar" id="icsFile" style="margin:6px 0"><div class="row" style="margin-top:8px"><button class="btn primary">Termine importieren</button></div></form>`;
+}
+
+/* ---------- Finanzen: Verlauf & Kündigungsfristen ---------- */
+function finChart(y, m){
+  const months = [...Array(6)].map((_, i) => { const d = new Date(y, m - 5 + i, 1); return [d.getFullYear(), d.getMonth()]; });
+  const data = months.map(([yy, mm]) => { const F = monthFin(yy, mm); return {lbl: MONTHS[mm].slice(0, 3), inc: F.inc, exp: F.exp}; });
+  const max = Math.max(1, ...data.map(d => Math.max(d.inc, d.exp)));
+  const W = 600, Hh = 200, bw = 30, gap = W / 6;
+  const bars = data.map((d, i) => { const x = i * gap + gap / 2 - bw - 2, hi = d.inc / max * (Hh - 30), he = d.exp / max * (Hh - 30);
+    return `<g><rect class="b-inc" x="${x}" y="${Hh - 20 - hi}" width="${bw}" height="${hi}" rx="3"><title>Einnahmen ${eur(d.inc)}</title></rect>
+      <rect class="b-exp" x="${x + bw + 4}" y="${Hh - 20 - he}" width="${bw}" height="${he}" rx="3"><title>Ausgaben ${eur(d.exp)}</title></rect>
+      <text x="${i * gap + gap / 2}" y="${Hh - 4}" text-anchor="middle">${d.lbl}</text></g>`; }).join('');
+  const avg = data.reduce((s, d) => s + d.exp, 0) / 6;
+  return `<div class="sec-h"><h2>${FH('chart', '📊', 'Verlauf (6 Monate)')}</h2></div>
+    <svg class="fchart" viewBox="0 0 ${W} ${Hh}" preserveAspectRatio="none" role="img" aria-label="Einnahmen und Ausgaben der letzten 6 Monate"><line x1="0" x2="${W}" y1="${Hh - 20}" y2="${Hh - 20}" class="axis"/>${bars}</svg>
+    <div class="fchart-l"><span><i class="l-inc"></i>Einnahmen</span><span><i class="l-exp"></i>Ausgaben</span><span>Ø Ausgaben: ${eur(avg)} / Monat</span></div>`;
+}
+function cancelPill(r){
+  if (!r.cancelBy || r.cancelBy < today()) return '';
+  const days = Math.round((parse(r.cancelBy) - parse(today())) / 864e5);
+  return ` <span class="pill ${days <= 30 ? 'late' : ''}">kündbar bis ${parse(r.cancelBy).toLocaleDateString(LOCALE, {day:'2-digit', month:'2-digit', year:'2-digit'})}</span>`;
+}
+
+/* ---------- Fokus-Timer ---------- */
+const FOCUS_XP = 15;
+let focus = null; try { focus = JSON.parse(localStorage.getItem('lebensplaner.focus') || 'null'); } catch(e) {}
+let focusInt = null;
+const fmtMS = ms => { const s = Math.ceil(ms / 1000); return pad(Math.floor(s / 60)) + ':' + pad(s % 60); };
+function saveFocus(){ try { focus ? localStorage.setItem('lebensplaner.focus', JSON.stringify(focus)) : localStorage.removeItem('lebensplaner.focus'); } catch(e) {} }
+function focusForm(){
+  if (focus) return focusRunningHTML();
+  editing = {kind: 'focus', fdur: 25};
+  return `<form id="focusForm"><h2>${Q() ? QI.timer + '<span>Fokus-Timer</span>' : '⏱ Fokus-Timer'}</h2>
+    <p class="hint">Arbeite konzentriert an einer Sache, ohne Ablenkung. Wenn die Zeit um ist, bekommst du <b>+${FOCUS_XP} XP</b>${IS_NATIVE ? ' und eine Benachrichtigung' : ''}.</p>
+    <label>Dauer</label><div class="tabs-sub ftime">${[15, 25, 45, 60].map(m => `<button type="button" data-fdur="${m}" class="${m === 25 ? 'on' : ''}">${m} Min.</button>`).join('')}</div>
+    <label>Woran arbeitest du? (optional)</label><select name="task"><option value="">–</option>${all('task').filter(t => !t.done).sort(sortTasks).map(t => `<option value="${t.id}">${esc(t.title)}</option>`).join('')}</select>
+    <div class="actions"><button type="button" class="btn" data-close>Abbrechen</button><button class="btn primary">Start</button></div></form>`;
+}
+function focusRunningHTML(){
+  editing = {kind: 'focusrun'};
+  const left = Math.max(0, focus.end - Date.now()), t = items.get(focus.task);
+  return `<div id="focusRun"><h2>${Q() ? QI.timer + '<span>Fokus läuft</span>' : '⏱ Fokus läuft'}</h2>${t ? `<p>${esc(t.title)}</p>` : ''}
+    <div class="ftimer" id="ftimer">${fmtMS(left)}</div><div class="cbar-track"><i class="cbar-fill tot" id="fbar" style="width:${(100 - left / (focus.dur * 60000) * 100).toFixed(1)}%"></i></div>
+    <p class="hint">Du kannst das Fenster schließen – der Timer läuft weiter.</p>
+    <div class="actions"><button type="button" class="btn danger" data-focus-stop>Abbrechen</button><button type="button" class="btn primary" data-close>Ausblenden</button></div></div>`;
+}
+function startFocus(fd){
+  const dur = (editing && editing.fdur) || 25;
+  focus = {end: Date.now() + dur * 60000, dur, task: (fd.get('task') || '').toString()};
+  saveFocus(); notifyFocus(); openModal(focusRunningHTML()); tickFocus();
+}
+function stopFocus(){ focus = null; saveFocus(); notifyFocus(); clearInterval(focusInt); updateFocusPill(); closeModal(); toast('Fokus abgebrochen'); }
+function finishFocus(){
+  focus = null; saveFocus(); clearInterval(focusInt); updateFocusPill();
+  const before = levelInfo(totalXP()).lvl;
+  setSetting({xpBank: (+(S().xpBank || 0)) + FOCUS_XP, focusCount: (+(S().focusCount || 0)) + 1, focusLog: [today(), ...(S().focusLog || [])].slice(0, 300)});
+  if ($('#focusRun')) closeModal();
+  render(); reward(before, FOCUS_XP); toast(`Fokus geschafft! +${FOCUS_XP} XP`);
+}
+function tickFocus(){
+  clearInterval(focusInt); updateFocusPill(); if (!focus) return;
+  const step = () => {
+    if (!focus) { clearInterval(focusInt); return; }
+    const left = focus.end - Date.now();
+    if (left <= 0) { finishFocus(); return; }
+    const el = $('#ftimer'); if (el) el.textContent = fmtMS(left);
+    const b = $('#fbar'); if (b) b.style.width = (100 - left / (focus.dur * 60000) * 100).toFixed(1) + '%';
+    updateFocusPill();
+  };
+  step(); focusInt = setInterval(step, 1000);
+}
+function updateFocusPill(){
+  let p = $('#focusPill');
+  if (!focus || backend === 'auth') { if (p) p.remove(); return; }
+  if (!p) { p = document.createElement('button'); p.id = 'focusPill'; p.type = 'button'; p.setAttribute('data-focus-open', ''); document.body.appendChild(p); }
+  p.textContent = '⏱ ' + fmtMS(Math.max(0, focus.end - Date.now()));
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden && focus) tickFocus(); });
+
+/* ---------- Erinnerungen (Android) ---------- */
+const NOTIF_DEFAULTS = { on: true, events: true, eventMin: 30, allDayTime: '08:00', tasks: true, taskTime: '09:00', pays: true, payTime: '18:00', habits: true, habitTime: '20:00' };
+const NS = () => ({...NOTIF_DEFAULTS, ...(S().notif || {})});
+const notifId = key => (hashStr(key) % 2000000000) + 1;
+let notifTimer = null;
+function scheduleNotifications(){ if (!IS_NATIVE || (backend !== 'local' && backend !== 'cloud')) return; clearTimeout(notifTimer); notifTimer = setTimeout(doScheduleNotifications, 1500); }
+async function doScheduleNotifications(){
+  try {
+    const pending = await LocalNotifications.getPending();
+    const keepFocus = focus ? notifId('focus') : -1;
+    const old = (pending.notifications || []).filter(n => n.id !== keepFocus).map(n => ({id: n.id}));
+    if (old.length) await LocalNotifications.cancel({notifications: old});
+    const ns = NS(); if (!ns.on) return;
+    const perm = await LocalNotifications.checkPermissions(); if (perm.display !== 'granted') return;
+    const now = Date.now(), list = [];
+    const at = (ds, hm) => { const [h, m] = String(hm || '09:00').split(':').map(Number); const d = parse(ds); d.setHours(h || 0, m || 0, 0, 0); return d; };
+    const push = (key, title, body, when, horizonDays = 14) => { const t = when.getTime(); if (t > now + 30000 && t < now + horizonDays * 864e5) list.push({id: notifId(key), title, body, schedule: {at: when, allowWhileIdle: true}, smallIcon: 'ic_stat_lebensplaner', iconColor: '#F2B544'}); };
+    for (let i = 0; i < 14; i++) {
+      const ds = ymd(addDays(new Date(), i));
+      if (ns.events) eventsOn(ds).forEach(e => {
+        if (e.remind === 'none') return;
+        if (e.start) { const min = (e.remind !== undefined && e.remind !== '') ? +e.remind : +ns.eventMin; const w = at(ds, e.start); w.setMinutes(w.getMinutes() - min);
+          push('e:' + e.id + ':' + ds, e.title, (min ? (min >= 1440 ? 'Morgen' : min >= 60 ? `In ${min / 60} Std.` : `In ${min} Min.`) + ' · ' : 'Jetzt · ') + e.start + ' Uhr' + (e.place ? ' · ' + e.place : ''), w); }
+        else push('e:' + e.id + ':' + ds, e.title, 'Heute · ganztägig', at(ds, ns.allDayTime));
+      });
+      if (ns.tasks) all('task').filter(t => !t.done && t.due === ds).forEach(t => push('t:' + t.id + ':' + ds, (Q() ? 'Quest fällig: ' : 'Heute fällig: ') + t.title, t.note || (Q() ? `+${taskXP(t)} XP warten auf dich` : 'Tippe, um den Planer zu öffnen'), at(ds, ns.taskTime)));
+      if (ns.pays) { const tm = ymd(addDays(parse(ds), 1)); finRowsForDates(tm, tm).filter(r => r.rec && r.type !== 'income').forEach(r => push('p:' + r.id + ':' + tm, 'Morgen wird abgebucht: ' + r.title, eur(r.amount), at(ds, ns.payTime))); }
+      if (ns.habits) { const open = all('habit').filter(h => !(h.done && h.done[ds])); if (open.length) push('h:' + ds, open.length === 1 ? 'Routine noch offen: ' + open[0].name : `${open.length} Routinen noch offen`, open.slice(0, 3).map(h => h.name).join(', ') + (open.length > 3 ? ' …' : ''), at(ds, ns.habitTime)); }
+    }
+    all('recurring').forEach(r => { if (r.cancelBy) push('c:' + r.id + ':' + r.cancelBy, 'Kündigungsfrist: ' + r.name, 'Kündbar bis ' + fmtShort(r.cancelBy) + ' – noch 7 Tage', at(ymd(addDays(parse(r.cancelBy), -7)), '10:00'), 120); });
+    list.sort((a, b) => a.schedule.at - b.schedule.at);
+    if (list.length) await LocalNotifications.schedule({notifications: list.slice(0, 64)});
+  } catch(e) { console.warn('Erinnerungen:', e); }
+}
+async function notifyFocus(){
+  if (!IS_NATIVE) return;
+  try {
+    await LocalNotifications.cancel({notifications: [{id: notifId('focus')}]});
+    if (focus) await LocalNotifications.schedule({notifications: [{id: notifId('focus'), title: 'Fokus geschafft! ⏱', body: `+${FOCUS_XP} XP – Zeit für eine kurze Pause.`, schedule: {at: new Date(focus.end), allowWhileIdle: true}, smallIcon: 'ic_stat_lebensplaner', iconColor: '#F2B544'}]});
+  } catch(e) {}
+}
+async function askNotifPermission(){
+  if (!IS_NATIVE) return false;
+  try { const p = await LocalNotifications.requestPermissions(); return p.display === 'granted'; } catch(e) { return false; }
+}
+function notifForm(){
+  editing = {kind: 'notif'};
+  const ns = NS(), mins = [[0,'Zur Startzeit'],[10,'10 Min. vorher'],[15,'15 Min. vorher'],[30,'30 Min. vorher'],[60,'1 Std. vorher'],[120,'2 Std. vorher'],[1440,'1 Tag vorher']];
+  const row = (key, label, timeKey, extra = '') => `<div class="nrow"><label class="chkl"><input type="checkbox" name="${key}" ${ns[key] ? 'checked' : ''}> ${label}</label>${timeKey ? `<input type="time" name="${timeKey}" value="${esc(ns[timeKey])}">` : ''}${extra}</div>`;
+  return `<form id="notifForm"><h2>${Q() ? QI.bell + '<span>Erinnerungen</span>' : '🔔 Erinnerungen'}</h2>
+    ${IS_NATIVE ? '' : '<div class="syncbox"><b>Nur in der Android-App</b>Erinnerungen kommen als Benachrichtigung aufs Handy. Die Einstellungen hier gelten auch dort.</div>'}
+    <div class="nrow"><label class="chkl big"><input type="checkbox" name="on" ${ns.on ? 'checked' : ''}> Erinnerungen einschalten</label></div>
+    ${row('events', 'Termine', null, `<select name="eventMin">${mins.map(([v, l]) => `<option value="${v}" ${+ns.eventMin === v ? 'selected' : ''}>${l}</option>`).join('')}</select>`)}
+    <div class="nrow sub"><span>Ganztägige Termine um</span><input type="time" name="allDayTime" value="${esc(ns.allDayTime)}"></div>
+    ${row('tasks', 'Fällige Quests / Aufgaben um', 'taskTime')}
+    ${row('pays', 'Abbuchungen (am Vortag) um', 'payTime')}
+    ${row('habits', 'Offene Routinen um', 'habitTime')}
+    <p class="hint">Kündigungsfristen von Abos erinnern dich immer 7 Tage vorher. Pro Termin kannst du die Erinnerung im Termin selbst ändern.</p>
+    <div class="actions">${IS_NATIVE ? '<button type="button" class="btn" data-notif-test>Test senden</button>' : '<span></span>'}<div class="row"><button type="button" class="btn" data-close>Abbrechen</button><button class="btn primary">Speichern</button></div></div></form>`;
+}
+async function saveNotif(form){
+  const fd = new FormData(form), g = k => (fd.get(k) || '').toString(), c = k => fd.get(k) === 'on';
+  const notif = { on: c('on'), events: c('events'), eventMin: +g('eventMin') || 0, allDayTime: g('allDayTime') || '08:00', tasks: c('tasks'), taskTime: g('taskTime') || '09:00', pays: c('pays'), payTime: g('payTime') || '18:00', habits: c('habits'), habitTime: g('habitTime') || '20:00' };
+  setSetting({notif}); closeModal(); render();
+  if (IS_NATIVE && notif.on) { const ok = await askNotifPermission(); if (!ok) { toast('Bitte Benachrichtigungen in den Android-Einstellungen erlauben'); return; } }
+  scheduleNotifications(); toast('Erinnerungen gespeichert');
+}
+async function testNotif(){
+  if (!(await askNotifPermission())) { toast('Benachrichtigungen sind nicht erlaubt'); return; }
+  try { await LocalNotifications.schedule({notifications: [{id: notifId('test' + Date.now()), title: 'Lebensplaner', body: 'So sehen deine Erinnerungen aus. 👍', schedule: {at: new Date(Date.now() + 5000), allowWhileIdle: true}, smallIcon: 'ic_stat_lebensplaner', iconColor: '#F2B544'}]}); toast('Test kommt in 5 Sekunden'); } catch(e) { toast('Konnte keine Erinnerung planen'); }
+}
+
+/* ---------- Nach jedem Rendern ---------- */
+let tlScrolled = '';
+function afterRender(){
+  const tl = $('#tlWrap');
+  if (tl && tlScrolled !== ui.sel) { tlScrolled = ui.sel; const now = new Date(); tl.scrollTop = Math.max(0, ((ui.sel === today() ? now.getHours() - 1 : 7) * HH)); }
+  if (!tl) tlScrolled = '';
+  checkAchievements();
+  scheduleNotifications();
+  updateFocusPill();
+}
+
 /* ---------- modal forms ---------- */
 let editing = null;
 function openModal(html){ $('#modal').innerHTML = html; $('#scrim').classList.add('open'); setTimeout(()=>{ const f = $('#modal input[type=text], #modal textarea'); f && f.focus(); }, 30); }
@@ -866,7 +1314,8 @@ const formTitle = (kind, edit) => { const t = T().form[kind][edit?1:0]; return Q
 
 function formFor(kind, it, date, ftype){
   if (FIN_KINDS.includes(kind)) return finForm(kind, it, date, ftype);
-  editing = {kind, id: it ? it.id : null, cat: it?.cat || 'privat', emoji: it?.emoji || '🌱', confirmDel:false};
+  if (kind === 'reward') return rewardForm(it);
+  editing = {kind, id: it ? it.id : null, cat: it?.cat || 'privat', emoji: it?.emoji || '🌱', confirmDel:false, subs: (it?.subs || []).map(x => ({...x}))};
   const tx = T();
   const del = it ? '<button type="button" class="btn danger" id="delBtn">Löschen</button>' : '<span></span>';
   const act = `<div class="actions">${del}<div class="row"><button type="button" class="btn" data-close>Abbrechen</button><button class="btn primary">Speichern</button></div></div>`;
@@ -877,11 +1326,15 @@ function formFor(kind, it, date, ftype){
     <label>Kategorie</label><div class="cats">${Object.entries(CATS).map(([k,l])=>`<button type="button" data-cat="${k}" class="${editing.cat===k?'on':''}"><span class="dot" style="background:${catColor(k)}"></span>${l}</button>`).join('')}</div>
     <div class="f2"><div><label>Wiederholen</label><select name="repeat">${[['none','Nie'],['daily','Täglich'],['weekly','Wöchentlich'],['monthly','Monatlich'],['yearly','Jährlich (z. B. Geburtstag)']].map(([v,l])=>`<option value="${v}" ${(it?.repeat||'none')===v?'selected':''}>${l}</option>`).join('')}</select></div>
     <div><label>Ort</label><input type="text" name="place" value="${esc(it?.place)}"></div></div>
+    <label>Erinnerung</label><select name="remind">${[['','Standard (' + NS().eventMin + ' Min. vorher)'],['none','Keine'],['0','Zur Startzeit'],['10','10 Min. vorher'],['30','30 Min. vorher'],['60','1 Std. vorher'],['120','2 Std. vorher'],['1440','1 Tag vorher']].map(([v,l])=>`<option value="${v}" ${(it?.remind ?? '')===v?'selected':''}>${l}</option>`).join('')}</select>
     <label>Notiz</label><textarea name="note" style="min-height:60px">${esc(it?.note)}</textarea>${act}</form>`;
   if (kind==='task') return `<form id="f"><h2>${formTitle(kind, it)}</h2>
     <label>Was ist zu tun?</label><input type="text" name="title" required value="${esc(it?.title)}">
     <div class="f2"><div><label>Fällig am</label><input type="date" name="due" value="${esc(it ? it.due : (date||''))}"></div>
     <div><label>Priorität</label><select name="prio">${tx.prio.map(([v,l])=>`<option value="${v}" ${(it?.prio||'normal')===v?'selected':''}>${l}</option>`).join('')}</select></div></div>
+    <label>Wiederholen</label><select name="trepeat">${Object.entries(TREPEAT).map(([v,l])=>`<option value="${v}" ${(it?.repeat||'none')===v?'selected':''}>${l}</option>`).join('')}</select>
+    <label>Unteraufgaben</label><div id="subsBox">${subsEditor()}</div>
+    <div class="row sub-add"><input type="text" id="subNew" placeholder="Neue Unteraufgabe" autocomplete="off"><button type="button" class="btn" data-sub-add>+ Hinzufügen</button></div>
     <label>Details</label><textarea name="note" style="min-height:60px">${esc(it?.note)}</textarea>${act}</form>`;
   if (kind==='habit') return `<form id="f"><h2>${formTitle(kind, it)}</h2>
     <label>Name</label><input type="text" name="name" required value="${esc(it?.name)}" placeholder="z. B. 30 Min. Training">
@@ -893,12 +1346,14 @@ function formFor(kind, it, date, ftype){
 
 function submitForm(fd){
   if (editing && FIN_KINDS.includes(editing.kind)) return finSubmit(fd);
+  if (editing && editing.kind === 'reward') { const old = editing.id ? items.get(editing.id) : null; const cost = Math.round(parseAmt((fd.get('cost')||'').toString())); if (!(cost > 0)) { toast('Bitte einen Preis eingeben'); return; } const it = {...(old || {id: newId('w'), kind: 'reward', created: Date.now()}), name: (fd.get('name')||'').toString().trim(), cost, emoji: editing.emoji}; closeModal(); put(it); toast(old ? 'Gespeichert' : 'Belohnung angelegt'); return; }
+  if (editing && editing.kind === 'task') syncSubsFromDom();
   const {kind, id} = editing;
   const old = id ? items.get(id) : null;
   const base = old ? {...old} : {id: newId(kind[0]), kind, created: Date.now()};
   const g = k => (fd.get(k)||'').toString().trim();
-  if (kind==='event') Object.assign(base, {title:g('title'), date:g('date'), start:g('start'), end:g('end'), cat:editing.cat, repeat:g('repeat'), place:g('place'), note:g('note')});
-  if (kind==='task') Object.assign(base, {title:g('title'), due:g('due'), prio:g('prio'), note:g('note'), done: old?.done||false});
+  if (kind==='event') Object.assign(base, {title:g('title'), date:g('date'), start:g('start'), end:g('end'), cat:editing.cat, repeat:g('repeat'), place:g('place'), note:g('note'), remind:g('remind')});
+  if (kind==='task') { Object.assign(base, {title:g('title'), due:g('due'), prio:g('prio'), note:g('note'), done: old?.done||false, repeat: g('trepeat') || 'none', subs: (editing.subs || []).map(x => ({...x, t: x.t.trim()})).filter(x => x.t)}); if (base.repeat !== 'none' && !base.due) base.due = today(); }
   if (kind==='habit') Object.assign(base, {name:g('name'), emoji:editing.emoji, done: old?.done||{}});
   if (kind==='note') { Object.assign(base, {title:g('title'), body:fd.get('body')||'', updated:Date.now()}); if(!base.title && !base.body.trim()) { closeModal(); return; } }
   closeModal(); put(base);
@@ -907,7 +1362,7 @@ function submitForm(fd){
 
 /* ---------- events ---------- */
 function refreshDesign(){ appliedKey = ''; render(); $('#modal').innerHTML = designPicker(); }
-const CLICK_SEL = '[data-tab],[data-new],[data-edit],[data-toggle-task],[data-toggle-habit],[data-sel],[data-cal],[data-tf],[data-fm],[data-fset],[data-fcat],[data-budget-open],[data-deposit],[data-dep],[data-cat],[data-emoji],[data-lp-bg],[data-lp-theme],[data-lp-acc],[data-bgmenu],[data-accmenu],[data-close],[data-lvlclose],[data-auth-mode],[data-auth-local],[data-login],[data-logout],[data-migrate],[data-import-open],[data-export],[data-export-dl],[data-copy-export],[data-copy],[data-delacc-open],#delBtn,#clearDone';
+const CLICK_SEL = '[data-tab],[data-new],[data-edit],[data-toggle-task],[data-toggle-habit],[data-sel],[data-cal],[data-tf],[data-subtoggle],[data-sub-add],[data-sub-del],[data-redeem],[data-calview],[data-calnav],[data-dayopen],[data-focus-open],[data-focus-stop],[data-fdur],[data-notif-open],[data-notif-test],[data-ics-open],[data-fm],[data-fset],[data-fcat],[data-budget-open],[data-deposit],[data-dep],[data-cat],[data-emoji],[data-lp-bg],[data-lp-theme],[data-lp-acc],[data-bgmenu],[data-accmenu],[data-close],[data-lvlclose],[data-auth-mode],[data-auth-local],[data-login],[data-logout],[data-migrate],[data-import-open],[data-export],[data-export-dl],[data-copy-export],[data-copy],[data-delacc-open],#delBtn,#clearDone';
 document.addEventListener('click', e => {
   const t = e.target.closest(CLICK_SEL);
   if (!t || t === document.body || t === document.documentElement) { if (e.target === $('#scrim')) closeModal(); return; }
@@ -920,6 +1375,9 @@ document.addEventListener('click', e => {
   if (t.hasAttribute('data-migrate')) { closeModal(); migrateLocal(); return; }
   if (t.hasAttribute('data-accmenu')) { if (backend === 'auth' || backend === 'none') return; editing = null; openModal(accountMenu()); return; }
   if (t.hasAttribute('data-import-open')) { showImport(); return; }
+  if (t.hasAttribute('data-ics-open')) { showICSImport(); return; }
+  if (t.hasAttribute('data-notif-open')) { openModal(notifForm()); return; }
+  if (t.hasAttribute('data-notif-test')) { testNotif(); return; }
   if (t.hasAttribute('data-export')) { showExport(); return; }
   if (t.hasAttribute('data-copy-export')) { copyText(exportJSON(), t); return; }
   if (t.hasAttribute('data-export-dl')) {
@@ -933,7 +1391,17 @@ document.addEventListener('click', e => {
   if (backend === 'auth') return;
   if (t.dataset.toggleTask) { e.stopPropagation(); toggleTask(items.get(t.dataset.toggleTask)); return; }
   if (t.dataset.toggleHabit) { e.stopPropagation(); toggleHabit(items.get(t.dataset.toggleHabit), t.dataset.date); return; }
-  if (t.dataset.tab) { e.preventDefault(); ui.tab = t.dataset.tab; try{localStorage.setItem('lebensplaner.tab',ui.tab)}catch(_){} render(); window.scrollTo(0,0); return; }
+  if (t.dataset.subtoggle) { e.stopPropagation(); const [a, b] = t.dataset.subtoggle.split('|'); toggleSub(a, b); return; }
+  if (t.hasAttribute('data-sub-add')) { addSub(); return; }
+  if (t.dataset.subDel !== undefined) { syncSubsFromDom(); editing.subs.splice(+t.dataset.subDel, 1); $('#subsBox').innerHTML = subsEditor(); return; }
+  if (t.dataset.redeem) { redeem(t.dataset.redeem, t); return; }
+  if (t.dataset.calview) { ui.calView = t.dataset.calview; render(); return; }
+  if (t.dataset.calnav) { calNav(+t.dataset.calnav); return; }
+  if (t.dataset.dayopen) { ui.sel = t.dataset.dayopen; ui.calView = 'day'; render(); window.scrollTo(0,0); return; }
+  if (t.hasAttribute('data-focus-open')) { openModal(focusForm()); return; }
+  if (t.hasAttribute('data-focus-stop')) { stopFocus(); return; }
+  if (t.dataset.fdur) { editing.fdur = +t.dataset.fdur; document.querySelectorAll('.ftime button').forEach(b => b.classList.toggle('on', b === t)); return; }
+  if (t.dataset.tab) { e.preventDefault(); if ($('#scrim').classList.contains('open')) closeModal(); ui.tab = t.dataset.tab; try{localStorage.setItem('lebensplaner.tab',ui.tab)}catch(_){} render(); window.scrollTo(0,0); return; }
   if (t.dataset.new) { openModal(formFor(t.dataset.new, null, t.dataset.date, t.dataset.ftype)); return; }
   if (t.dataset.edit) { const it = items.get(t.dataset.edit); if (it) openModal(formFor(it.kind, it)); return; }
   if (t.dataset.sel) { ui.sel = t.dataset.sel; const d = parse(ui.sel); if (d.getMonth()!==ui.calMonth[1]) ui.calMonth=[d.getFullYear(),d.getMonth()]; render(); return; }
@@ -959,7 +1427,7 @@ document.addEventListener('click', e => {
   if (t.id === 'clearDone') {
     if (!t.dataset.sure) { t.dataset.sure = 1; t.textContent = 'Sicher? Nochmal tippen'; return; }
     const done = all('task').filter(x=>x.done);
-    bankXP(done.reduce((s,x)=>s+taskXP(x),0));
+    bankXP(done.reduce((s,x)=>s+taskXP(x),0)); setSetting({questsBank: (+(S().questsBank || 0)) + done.length});
     done.forEach(x=>{ items.delete(x.id); });
     render(); bulkWrite(done, true).catch(()=>{});
     toast(Q() ? 'Log aufgeräumt' : 'Erledigte gelöscht'); return;
@@ -981,6 +1449,9 @@ document.addEventListener('submit', e => {
     return;
   }
   if (id === 'budgetForm') { saveBudgets(new FormData(e.target)); return; }
+  if (id === 'focusForm') { startFocus(new FormData(e.target)); return; }
+  if (id === 'notifForm') { saveNotif(e.target); return; }
+  if (id === 'icsForm') { const f = $('#icsFile') && $('#icsFile').files[0]; if (!f) { toast('Bitte eine .ics-Datei wählen'); return; } const rd = new FileReader(); rd.onload = () => { const list = parseICS(String(rd.result || '')); if (!list.length) { toast('Keine Termine in der Datei gefunden'); return; } importItems(list); closeModal(); toast(list.length + ' Termine importiert'); }; rd.readAsText(f); return; }
   if (id === 'depositForm') { doDeposit('in'); return; }
   if (id === 'f') submitForm(new FormData(e.target));
   if (id === 'quickTask') {
@@ -990,15 +1461,15 @@ document.addEventListener('submit', e => {
     setTimeout(()=>{ const q=$('#quickTitle'); q && q.focus(); },0);
   }
 });
-document.addEventListener('keydown', e => { if (e.key==='Escape') { if ($('#scrim').classList.contains('open')) closeModal(); $('#lvlup').classList.remove('show'); } });
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target && e.target.id === 'subNew') { e.preventDefault(); addSub(); return; } if (e.key==='Escape') { if ($('#scrim').classList.contains('open')) closeModal(); $('#lvlup').classList.remove('show'); } });
 /* ---------- start ---------- */
 function startLocal(msg){
   stopCloud();
-  backend = 'local'; items = new Map(); loadLocal();
+  backend = 'local'; items = new Map(); loadLocal(); achReady = true;
   setStatus(msg || (FB_READY ? 'Nur auf diesem Gerät · anmelden zum Synchronisieren' : 'Nur auf diesem Gerät gespeichert'), 'local');
   render();
 }
-function stopCloud(){ if (fb.unsub) { fb.unsub(); fb.unsub = null; } }
+function stopCloud(){ achReady = false; if (fb.unsub) { fb.unsub(); fb.unsub = null; } }
 function showAuthScreen(){
   stopCloud();
   backend = 'auth'; items = new Map(); authMode = 'login'; authBusy = false;
@@ -1012,7 +1483,7 @@ function startCloud(user){
   let first = true, offered = false;
   const timer = setTimeout(() => { if (first) setStatus('Offline – Änderungen werden später abgeglichen', 'offline'); }, 8000);
   fb.unsub = onSnapshot(itemsCol(), { includeMetadataChanges: true }, snap => {
-    if (!snap.metadata.fromCache) { clearTimeout(timer); first = false; setStatus('Synchronisiert ☁️', 'ok'); }
+    if (!snap.metadata.fromCache) { clearTimeout(timer); first = false; achReady = true; setStatus('Synchronisiert ☁️', 'ok'); }
     else if (!first) setStatus('Offline – Änderungen werden später abgeglichen', 'offline');
     const m = new Map();
     snap.docs.forEach(d => { const v = d.data(); if (v && v.kind) m.set(d.id, {...v, id: d.id}); });
@@ -1037,6 +1508,8 @@ new MutationObserver(()=>{ if (pendingRender && !$('#scrim').classList.contains(
 function boot(){
   applyTheme();
   render();
+  if (focus) tickFocus();
+  if (IS_NATIVE) { let asked = false; try { asked = localStorage.getItem('lebensplaner.notifAsked') === '1'; localStorage.setItem('lebensplaner.notifAsked', '1'); } catch(e) {} if (!asked) setTimeout(() => askNotifPermission().then(ok => { if (ok) scheduleNotifications(); }), 2500); }
   if (!FB_READY) return startLocal();
   try {
     fb.app = initializeApp(firebaseConfig);

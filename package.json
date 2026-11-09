@@ -12,6 +12,7 @@
     "@capacitor/android": "^8.0.0",
     "@capacitor/app": "^8.0.0",
     "@capacitor/core": "^8.0.0",
+    "@capacitor/local-notifications": "^8.0.0",
     "firebase": ">=11.0.0 <13.0.0"
   },
   "devDependencies": {
@@ -22,5 +23,7 @@
     "@fontsource/rajdhani": "^5.0.0",
     "esbuild": ">=0.24.0 <1.0.0"
   },
-  "engines": { "node": ">=22" }
+  "engines": {
+    "node": ">=22"
+  }
 }
