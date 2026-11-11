@@ -1605,7 +1605,7 @@ function shiftTodayCard(){
   const todays = shiftsOn(td);
   const running = [...shiftsOn(ymd(addDays(now, -1))), ...todays].find(s => s.mode !== 'fixed' && hm2min(s.start) != null && now >= shStart(s) && now < shEnd(s));
   let head;
-  if (running) { const mt = shMeta(running); head = `${shBadge(mt, 'big')}<div class="grow"><div class="t">${esc(mt.name)} läuft</div><div class="s">${shTimeLabel(running)} · noch ${fmtH((shEnd(running) - now) / 36e5)}</div></div>`; }
+  if (running) { const mt = shMeta(running); head = `${shBadge(mt, 'big')}<div class="grow"><div class="t">${esc(mt.name)} läuft</div><div class="s">${shTimeLabel(running)} · noch ${(() => { const mm = Math.max(0, Math.round((shEnd(running) - now) / 6e4)); return Math.floor(mm / 60) + ':' + pad(mm % 60); })()} Std.</div></div>`; }
   else if (todays.length) { const s = todays[0], mt = shMeta(s); head = `${shBadge(mt, 'big')}<div class="grow"><div class="t">Heute: ${esc(mt.name)}</div><div class="s">${shTimeLabel(s)}${s.mode === 'fixed' ? '' : ' · ' + fmtH(shiftHours(s))}${todays.length > 1 ? ` · +${todays.length - 1} weitere` : ''}</div></div>`; }
   else { const nx = all('shift').filter(s => s.date > td).sort(shSort)[0];
     head = `<span class="shbadge big free">–</span><div class="grow"><div class="t">Heute frei</div><div class="s">${nx ? `Nächste Schicht: ${fmtShort(nx.date)} · ${esc(shMeta(nx).name)}${nx.start ? ' · ' + esc(nx.start) : ''}` : 'Trag deinen Dienstplan ein – die Stunden werden automatisch für Monat und Jahr zusammengerechnet.'}</div></div>`; }
@@ -1815,7 +1815,7 @@ const D = {
 const trIn = x => tr1(x) ?? x;
 const RX = [
   [/^([+−]?[\d.,]+) Std\.$/, '$1 h'],
-  [/^noch ([\d.,]+) Std\.$/, '$1 h left'],
+  [/^noch ([\d.,:]+) Std\.$/, '$1 h left'],
   [/^davon gearbeitet (.+)$/, (m, a) => 'of which worked ' + trIn(a)],
   [/^Gesamt (\d{4}): (.+)$/, (m, a, b) => 'Total ' + a + ': ' + trIn(b)],
   [/^Gesamt: (.+)$/, (m, a) => 'Total: ' + trIn(a)],
